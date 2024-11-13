@@ -3,9 +3,11 @@ package com.inventario.inventario_api.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
 import org.springframework.data.annotation.Id;
 
 @Entity
+@Table(name = "usuario") //TODO al usar user da conflito con H2 y Postgres
 public class User {
 
     @jakarta.persistence.Id

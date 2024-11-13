@@ -3,12 +3,9 @@ package com.inventario.inventario_api.controller;
 import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")

@@ -1,6 +1,8 @@
 package com.inventario.inventario_api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,11 +15,23 @@ import lombok.Setter;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generate the ID
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank()
+    @Column(name = "nombre")
+    @JsonProperty("nombre")
     private String name;
+
+    @NotBlank(message = "El correo electronico es obligatorio")
+    @Email
+    @JsonProperty("correo_electronico")
     private String email;
+
+    @NotBlank(message = "El password es obligatorio")
     private String password;
 
+    private String direccion;
+
+    private String telefono;
 }

@@ -10,7 +10,6 @@ import org.springframework.data.annotation.Id;
 @Table(name = "usuario") //TODO al usar user da conflito con H2 y Postgres
 public class User {
 
-    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generate the ID
     private Long id;

@@ -30,8 +30,13 @@ public class UserController {
 
     // Get all users
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public ResponseEntity<List<User>> getUsers() {
+        List<User> users = userService.getUsers();
+        if (users.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(users);
     }
 
     // Get a user by ID
@@ -39,7 +44,7 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
         return user.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Update a user
@@ -50,7 +55,7 @@ public class UserController {
             User updatedUser = userService.saveUser(user);
             return ResponseEntity.ok(updatedUser);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -61,7 +66,7 @@ public class UserController {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
     }
 

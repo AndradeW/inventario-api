@@ -18,7 +18,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copia el archivo .jar generado en la etapa de construcción
-COPY --from=build /app/target/myapp-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/inventario-api-0.0.1-SNAPSHOT.jar app.jar
 
 # Comando para ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]

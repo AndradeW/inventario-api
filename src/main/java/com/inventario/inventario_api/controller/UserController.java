@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
 
@@ -22,14 +22,14 @@ public class UserController {
     }
 
     // Create a new user
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         User newUser = userService.saveUser(user);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     // Get all users
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<List<User>> getUsers() {
         List<User> users = userService.getUsers();
         if (users.isEmpty()) {

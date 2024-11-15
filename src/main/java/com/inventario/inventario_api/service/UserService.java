@@ -12,7 +12,6 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
 
-    // Dependency injection of the repository
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;

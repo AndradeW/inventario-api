@@ -66,16 +66,22 @@ public class UserController {
     }
 
     // Update a user
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    @PutMapping("/{id}") //TODO implementar grupos de validación para diferenciarlos con las de Create
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserInputDTO userInputDTO) {
 
-        if (userService.getUserById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (userService.getUserById(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            User s = userMapper.userInputToUserInputDTO(userInputDTO);
+            User updatedUser = userService.saveUser(s);
+            return ResponseEntity.ok(userMapper.userToUserDTO(updatedUser));
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
 
-        user.setId(id);
-        User updatedUser = userService.saveUser(user);
-        return ResponseEntity.ok(updatedUser);
     }
 
     // Delete a user

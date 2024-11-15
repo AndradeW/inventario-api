@@ -17,7 +17,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Ejecutar la aplicación con una imagen Java
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jre-slim
 
 # Establece el directorio de trabajo para la ejecución
 WORKDIR /app

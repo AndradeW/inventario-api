@@ -4,8 +4,13 @@ FROM maven:3.8.5-openjdk-17 AS build
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copia los archivos de configuración y el código fuente al contenedor
+# Copia solo el archivo pom.xml primero para aprovechar la cache de Docker
 COPY pom.xml ./
+
+# Resuelve las dependencias antes de copiar el código fuente, para que no se vuelva a descargar si no cambia pom.xml
+RUN mvn dependency:go-offline
+
+# Copia el código fuente
 COPY src ./src
 
 # Ejecuta mvn clean package para compilar y empaquetar la aplicación

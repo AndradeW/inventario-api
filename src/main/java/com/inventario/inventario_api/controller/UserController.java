@@ -30,11 +30,11 @@ public class UserController {
 
     // Create a new user
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
         try {
             User s = userMapper.userInputToUserInputDTO(userInputDTO);
             User newUser = userService.saveUser(s);
-            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+            return new ResponseEntity<>(userMapper.userToUserDTO(newUser), HttpStatus.CREATED);
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -66,16 +66,22 @@ public class UserController {
     }
 
     // Update a user
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    @PutMapping("/{id}") //TODO implementar grupos de validación para diferenciarlos con las de Create
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserInputDTO userInputDTO) {
 
-        if (userService.getUserById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            if (userService.getUserById(id).isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            User s = userMapper.userInputToUserInputDTO(userInputDTO);
+            User updatedUser = userService.saveUser(s);
+            return ResponseEntity.ok(userMapper.userToUserDTO(updatedUser));
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
 
-        user.setId(id);
-        User updatedUser = userService.saveUser(user);
-        return ResponseEntity.ok(updatedUser);
     }
 
     // Delete a user

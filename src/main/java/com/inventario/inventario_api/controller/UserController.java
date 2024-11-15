@@ -30,11 +30,11 @@ public class UserController {
 
     // Create a new user
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
         try {
             User s = userMapper.userInputToUserInputDTO(userInputDTO);
             User newUser = userService.saveUser(s);
-            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
+            return new ResponseEntity<>(userMapper.userToUserDTO(newUser), HttpStatus.CREATED);
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

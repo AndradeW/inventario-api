@@ -32,10 +32,6 @@ public class AuthController {
 
         Authentication authentication = this.authenticationManager.authenticate(login);
 
-        System.out.println(authentication.getPrincipal());
-        System.out.println(authentication.getCredentials());
-        System.out.println(authentication.isAuthenticated());
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = this.jwtUtil.generateToken(loginDTO.getUsername());

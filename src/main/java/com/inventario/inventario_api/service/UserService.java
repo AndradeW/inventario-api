@@ -23,22 +23,22 @@ public class UserService implements UserDetailsService {
 
     // Create or update user
     public UserEntity saveUser(UserEntity userEntity) {
-        return userRepository.save(userEntity);
+        return this.userRepository.save(userEntity);
     }
 
     // Get all users
     public List<UserEntity> getUsers() {
-        return userRepository.findAll();
+        return this.userRepository.findAll();
     }
 
     // Get user by ID
     public Optional<UserEntity> getUserById(Long id) {
-        return userRepository.findById(id);
+        return this.userRepository.findById(id);
     }
 
     // Delete user by ID
     public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+        this.userRepository.deleteById(id);
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

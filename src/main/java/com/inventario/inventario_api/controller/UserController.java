@@ -3,7 +3,7 @@ package com.inventario.inventario_api.controller;
 import com.inventario.inventario_api.DTO.Mapper.UserMapper;
 import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
-import com.inventario.inventario_api.model.User;
+import com.inventario.inventario_api.model.UserEntity;
 import com.inventario.inventario_api.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +32,9 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
         try {
-            User s = userMapper.userInputToUserInputDTO(userInputDTO);
-            User newUser = userService.saveUser(s);
-            return new ResponseEntity<>(userMapper.userToUserDTO(newUser), HttpStatus.CREATED);
+            UserEntity s = this.userMapper.userInputToUserInputDTO(userInputDTO);
+            UserEntity newUserEntity = this.userService.saveUser(s);
+            return new ResponseEntity<>(this.userMapper.userToUserDTO(newUserEntity), HttpStatus.CREATED);
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -44,25 +44,25 @@ public class UserController {
     // Get all users
     @GetMapping()
     public ResponseEntity<List<UserDTO>> getUsers() {
-        List<User> usersDTO = userService.getUsers();
+        List<UserEntity> usersDTO = this.userService.getUsers();
         if (usersDTO.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
         return ResponseEntity.ok(
-                usersDTO.stream().map(userMapper::userToUserDTO).collect(Collectors.toList()));
+                usersDTO.stream().map(this.userMapper::userToUserDTO).collect(Collectors.toList()));
     }
 
     // Get a user by ID
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
+        Optional<UserEntity> user = this.userService.getUserById(id);
 
         if (user.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
 
-        return ResponseEntity.ok(userMapper.userToUserDTO(user.get()));
+        return ResponseEntity.ok(this.userMapper.userToUserDTO(user.get()));
     }
 
     // Update a user
@@ -70,13 +70,13 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserInputDTO userInputDTO) {
 
         try {
-            if (userService.getUserById(id).isEmpty()) {
+            if (this.userService.getUserById(id).isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
 
-            User s = userMapper.userInputToUserInputDTO(userInputDTO);
-            User updatedUser = userService.saveUser(s);
-            return ResponseEntity.ok(userMapper.userToUserDTO(updatedUser));
+            UserEntity s = this.userMapper.userInputToUserInputDTO(userInputDTO);
+            UserEntity updatedUserEntity = this.userService.saveUser(s);
+            return ResponseEntity.ok(this.userMapper.userToUserDTO(updatedUserEntity));
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -88,11 +88,11 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         try {
-            if (userService.getUserById(id).isEmpty()) {
+            if (this.userService.getUserById(id).isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
 
-            userService.deleteUser(id);
+            this.userService.deleteUser(id);
             return ResponseEntity.noContent().build();
 
         } catch (Exception e) {

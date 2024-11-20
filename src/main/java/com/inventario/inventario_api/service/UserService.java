@@ -52,6 +52,7 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
+//TODO Usar la base de datos
 
 //        User userEntity = this.userRepository.findById(Long.valueOf(username))
 //                .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found."));

@@ -81,10 +81,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-            <version>6.4.2</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.4.2</version>
         </dependency>
+
 
     </dependencies>
 
@@ -94,9 +95,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.4.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
             </plugin>
         </plugins>
     </build>

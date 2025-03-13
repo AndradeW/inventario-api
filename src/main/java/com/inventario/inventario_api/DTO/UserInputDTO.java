@@ -9,14 +9,14 @@ import lombok.Setter;
 @Getter
 public class UserInputDTO {
 
-    @NotBlank()
+    //@NotBlank()
     private String name;
     @NotBlank()
     private String username;
     @NotBlank()
     @Email
     private String email;
-    @NotBlank()
+    //@NotBlank()
     private String role;
     @NotBlank()
     private String password;

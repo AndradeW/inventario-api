@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,9 +31,9 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
         try {
-            User s = userMapper.userInputToUserInputDTO(userInputDTO);
-            User newUser = userService.saveUser(s);
-            return new ResponseEntity<>(userMapper.userToUserDTO(newUser), HttpStatus.CREATED);
+            User s = this.userMapper.userInputToUser(userInputDTO);
+            User savedUser = this.userService.saveUser(s);
+            return new ResponseEntity<>(this.userMapper.userToUserDTO(savedUser), HttpStatus.CREATED);
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -44,25 +43,21 @@ public class UserController {
     // Get all users
     @GetMapping()
     public ResponseEntity<List<UserDTO>> getUsers() {
-        List<User> usersDTO = userService.getUsers();
-        if (usersDTO.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
+        List<User> usersDTO = this.userService.getUsers();
 
         return ResponseEntity.ok(
-                usersDTO.stream().map(userMapper::userToUserDTO).collect(Collectors.toList()));
+                usersDTO.stream()
+                        .map(this.userMapper::userToUserDTO)
+                        .toList());
     }
 
     // Get a user by ID
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
+        Optional<User> user = this.userService.getUserById(id);
 
-        if (user.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.ok(userMapper.userToUserDTO(user.get()));
+        return user.map(u -> ResponseEntity.ok(this.userMapper.userToUserDTO(u)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Update a user
@@ -70,13 +65,14 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(@PathVariable Long id, @RequestBody UserInputDTO userInputDTO) {
 
         try {
-            if (userService.getUserById(id).isEmpty()) {
+            if (this.userService.getUserById(id).isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
 
-            User s = userMapper.userInputToUserInputDTO(userInputDTO);
-            User updatedUser = userService.saveUser(s);
-            return ResponseEntity.ok(userMapper.userToUserDTO(updatedUser));
+            User s = this.userMapper.userInputToUser(userInputDTO);
+            s.setId(id);
+            User updatedUser = this.userService.saveUser(s);
+            return ResponseEntity.ok(this.userMapper.userToUserDTO(updatedUser));
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -88,16 +84,15 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         try {
-            if (userService.getUserById(id).isEmpty()) {
+            if (this.userService.getUserById(id).isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
 
-            userService.deleteUser(id);
+            this.userService.deleteUser(id);
             return ResponseEntity.noContent().build();
 
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
-
 }

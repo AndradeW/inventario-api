@@ -53,7 +53,7 @@ public class UserMapper {
         return user;
     }
 
-    public User userInputToUserInputDTO(UserInputDTO userInputDTO) {
+    public User userInputToUser(UserInputDTO userInputDTO) {
         if (userInputDTO == null) {
             return null;
         }
@@ -63,7 +63,7 @@ public class UserMapper {
         user.setName(userInputDTO.getName());
         user.setUsername(userInputDTO.getUsername());
         user.setEmail(userInputDTO.getEmail());
-        user.setPassword(encoder.encodePassword(userInputDTO.getPassword()));
+        user.setPassword(this.encoder.encodePassword(userInputDTO.getPassword()));
         user.setRole(userInputDTO.getRole());
         user.setAddress(userInputDTO.getAddress());
         user.setPhone(userInputDTO.getPhone());

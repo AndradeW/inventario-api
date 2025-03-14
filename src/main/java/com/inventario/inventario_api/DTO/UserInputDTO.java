@@ -10,18 +10,14 @@ import lombok.Setter;
 public class UserInputDTO {
 
     @NotBlank()
-    private String name;
-    @NotBlank()
     private String username;
     @NotBlank()
     @Email
     private String email;
     @NotBlank()
-    private String role;
-    @NotBlank()
     private String password;
 
+    private String name;
     private String address;
     private String phone;
-
 }

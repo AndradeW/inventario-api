@@ -5,9 +5,7 @@ import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
 import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,18 +25,18 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-    // Create a new user
-    @PostMapping("/register")
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
-        try {
-            User s = this.userMapper.userInputToUser(userInputDTO);
-            User savedUser = this.userService.saveUser(s);
-            return new ResponseEntity<>(this.userMapper.userToUserDTO(savedUser), HttpStatus.CREATED);
-
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
+//    // Create a new user
+//    @PostMapping("/register")
+//    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
+//        try {
+//            User s = this.userMapper.userInputToUser(userInputDTO);
+//            User savedUser = this.userService.updateUser(s);
+//            return new ResponseEntity<>(this.userMapper.userToUserDTO(savedUser), HttpStatus.CREATED);
+//
+//        } catch (Exception e) {
+//            return ResponseEntity.internalServerError().build();
+//        }
+//    }
 
     // Get all users
     @GetMapping()
@@ -71,7 +69,7 @@ public class UserController {
 
             User s = this.userMapper.userInputToUser(userInputDTO);
             s.setId(id);
-            User updatedUser = this.userService.saveUser(s);
+            User updatedUser = this.userService.updateUser(s);
             return ResponseEntity.ok(this.userMapper.userToUserDTO(updatedUser));
 
         } catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.inventario.inventario_api.controller;
 
+import com.inventario.inventario_api.DTO.AuthResponse;
 import com.inventario.inventario_api.DTO.Mapper.UserMapper;
 import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
@@ -32,12 +33,12 @@ public class AuthController {
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
 
         User s = this.userMapper.userInputToUser(userInputDTO);
-        User savedUser = this.userService.saveUser(s);
+        User savedUser = this.userService.createUser(s);
         return new ResponseEntity<>(this.userMapper.userToUserDTO(savedUser), HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
 
         return new ResponseEntity<>(this.userService.loginUser(userLoginDTO), HttpStatus.OK);
 

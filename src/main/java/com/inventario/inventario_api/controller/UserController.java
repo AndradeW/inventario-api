@@ -25,19 +25,6 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-//    // Create a new user
-//    @PostMapping("/register")
-//    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
-//        try {
-//            User s = this.userMapper.userInputToUser(userInputDTO);
-//            User savedUser = this.userService.updateUser(s);
-//            return new ResponseEntity<>(this.userMapper.userToUserDTO(savedUser), HttpStatus.CREATED);
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.internalServerError().build();
-//        }
-//    }
-
     // Get all users
     @GetMapping()
     public ResponseEntity<List<UserDTO>> getUsers() {

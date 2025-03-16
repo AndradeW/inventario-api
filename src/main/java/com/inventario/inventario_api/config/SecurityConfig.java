@@ -1,7 +1,7 @@
 package com.inventario.inventario_api.config;
 
-import com.inventario.inventario_api.Utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +28,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class SecurityConfig {
 
     @Autowired
-    private JwtUtil jwtUtil;
+    @Qualifier("handlerExceptionResolver")
+    private HandlerExceptionResolver handlerExceptionResolver;
+
+    @Bean
+    public JwtTokenValidatorFilter jwtUtilFiler(){
+        return new JwtTokenValidatorFilter(this.handlerExceptionResolver);
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -43,7 +50,7 @@ public class SecurityConfig {
                             http.anyRequest().authenticated();
                         }
                 )
-                .addFilterBefore(new JwtTokenValidatorFilter(this.jwtUtil), BasicAuthenticationFilter.class)
+                .addFilterBefore(this.jwtUtilFiler(), BasicAuthenticationFilter.class)
                 .build();
     }
 

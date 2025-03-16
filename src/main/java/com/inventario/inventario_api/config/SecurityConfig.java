@@ -32,7 +32,7 @@ public class SecurityConfig {
     private HandlerExceptionResolver handlerExceptionResolver;
 
     @Bean
-    public JwtTokenValidatorFilter jwtUtilFiler(){
+    public JwtTokenValidatorFilter jwtUtilFiler() {
         return new JwtTokenValidatorFilter(this.handlerExceptionResolver);
     }
 

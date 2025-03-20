@@ -54,7 +54,7 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
 
-            User s = this.userMapper.userInputToUser(userInputDTO);
+            User s = this.userMapper.userInputDTOToUser(userInputDTO);
             s.setId(id);
             User updatedUser = this.userService.updateUser(s);
             return ResponseEntity.ok(this.userMapper.userToUserDTO(updatedUser));

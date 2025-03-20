@@ -25,4 +25,9 @@ public class Roles {
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
     private Set<Permission> permissionsList = new HashSet<>();
+
+    public void setName(String role) {
+
+        this.role = RoleEnum.valueOf(role);
+    }
 }

@@ -32,7 +32,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserInputDTO userInputDTO) {
 
-        User s = this.userMapper.userInputToUser(userInputDTO);
+        User s = this.userMapper.userInputDTOToUser(userInputDTO);
         User savedUser = this.userService.createUser(s);
         return new ResponseEntity<>(this.userMapper.userToUserDTO(savedUser), HttpStatus.CREATED);
     }

@@ -51,6 +51,10 @@ public class UserService implements UserDetailsService {
             throw new BadCredentialsException("Username already exists");
         }
 
+        if (this.userRepository.existsUserByEmail(user.getEmail())) {
+            throw new BadCredentialsException("Email already exists");
+        }
+
         Map<String, Role> rolesDb = this.rolesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(Role::getName, role -> role));

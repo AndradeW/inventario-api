@@ -1,7 +1,9 @@
 package com.inventario.inventario_api.DTO;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,12 +15,19 @@ import lombok.Setter;
 @Builder
 public class UserInputDTO {
 
-    @NotBlank()
+    @NotNull(message = "El nombre de usuario no puede estar vacío")
+    @Size(min = 3, max = 20, message = "El nombre de usuario debe tener entre 3 y 20 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "El nombre de usuario solo puede contener letras, números, guiones y puntos")
     private String username;
-    @NotBlank()
-    @Email
+
+    @Email(message = "Debe ser una dirección de correo electrónico válida")
+    @NotNull(message = "El correo electrónico no puede estar vacío")
     private String email;
-    @NotBlank()
+
+    @NotNull(message = "La contraseña no puede estar vacía")
+    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
+    //TODO Validar
+//    @Pattern(regexp = "(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}", message = "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial")
     private String password;
 
     private String[] role;

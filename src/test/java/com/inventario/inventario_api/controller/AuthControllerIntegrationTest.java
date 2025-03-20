@@ -170,7 +170,7 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.BAD_REQUEST, apiError.getStatusCode());
         assertEquals("Validations error", apiError.getMessage());
         assertTrue(apiError.getDetails().containsKey("email"));
-        assertEquals("debe ser una dirección de correo electrónico con formato correcto", apiError.getDetails().get("email"));
+        assertEquals("Debe ser una dirección de correo electrónico válida", apiError.getDetails().get("email"));
     }
 
     @Test
@@ -203,8 +203,10 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_UsernameAlreadyExist() {
         // Given
+
+        String existingUsername = "username";
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("username")
+                .username(existingUsername)
                 .email("email@email.com")
                 .password("password")
                 .name("name")
@@ -214,7 +216,7 @@ public class AuthControllerIntegrationTest {
 
         this.userRepository.save(
                 User.builder()
-                        .username("username").build()
+                        .username(existingUsername).build()
         );
 
         // When
@@ -230,6 +232,112 @@ public class AuthControllerIntegrationTest {
         assertEquals("Username already exists", apiError.getDetails().get("Error"));
     }
 
+    @Test
+    public void testRegisterUser_EmailAlreadyExists() {
+        // Given
+        String existingEmail = "email@email.com";
+
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("existingUser")
+                .email(existingEmail)
+                .password("password")
+                .name("name")
+                .address("address")
+                .phone("phone")
+                .build();
+
+        this.userRepository.save(
+                User.builder()
+                        .email(existingEmail).build()
+        );
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse apiError = response.getBody();
+        assertNotNull(apiError);
+        assertEquals("Bad credentials", apiError.getMessage());
+        assertTrue(apiError.getDetails().containsKey("Error"));
+        assertEquals("Email already exists", apiError.getDetails().get("Error"));
+    }
+
+
+    @Test
+    public void testRegisterUser_ShortPassword() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("newUser")
+                .email("email@email.com")
+                .password("123")
+                .name("name")
+                .address("address")
+                .phone("phone")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse apiError = response.getBody();
+        assertNotNull(apiError);
+        assertTrue(apiError.getDetails().containsKey("password"));
+        assertEquals("La contraseña debe tener al menos 8 caracteres", apiError.getDetails().get("password"));
+    }
+
+    @Test
+    public void testRegisterUser_MissingFields() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("username")
+//                .email("")
+//                .password("")
+                .name("name")
+                .address("address")
+                .phone("phone")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse apiError = response.getBody();
+        assertNotNull(apiError);
+        assertEquals("Validations error", apiError.getMessage());
+        assertTrue(apiError.getDetails().containsKey("email"));
+        assertEquals("El correo electrónico no puede estar vacío", apiError.getDetails().get("email"));
+        assertTrue(apiError.getDetails().containsKey("password"));
+        assertEquals("La contraseña no puede estar vacía",apiError.getDetails().get("password"));
+    }
+
+
+    @Test
+    public void testRegisterUser_InvalidUsername() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("invalid!user")  // Nombre de usuario con caracteres no permitidos
+                .email("validemail@email.com")
+                .password("password123")
+                .name("name")
+                .address("address")
+                .phone("phone")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse apiError = response.getBody();
+        assertNotNull(apiError);
+        assertTrue(apiError.getDetails().containsKey("username"));
+        assertEquals("El nombre de usuario solo puede contener letras, números, guiones y puntos", apiError.getDetails().get("username"));
+    }
+
+    //   ------------------- -------------------   Login  ------------------------------ -------------------------------
     @Test
     public void testLoginUser_OK() {
         // Given
@@ -259,6 +367,25 @@ public class AuthControllerIntegrationTest {
         assertNotNull(responseBody.token());
         assertTrue(responseBody.status());
     }
+
+    @Test
+    public void testLoginUser_UserNotFound() {
+        // Given
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username("nonexistentUser")
+                .password("password123")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        ErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("User not found", responseBody.getMessage());
+    }
+
 
     @Test
     public void testLoginUser_noUsername() {
@@ -300,7 +427,7 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                        .username("testuser")
+                .username("testuser")
                 .build();
 
         // When
@@ -328,7 +455,7 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                        .username("testuser")
+                .username("testuser")
                 .password("wrongpassword")
                 .build();
 
@@ -344,4 +471,34 @@ public class AuthControllerIntegrationTest {
         assertTrue(responseBody.getDetails().containsKey("Error"));
         assertEquals("Contraseña incorrecta", responseBody.getDetails().get("Error"));
     }
+
+    /*TODO Revisar escenario
+    @Test
+    public void testLoginUser_UserBlocked() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("blockedUser")
+                .email("blocked@email.com")
+                .password("password123")
+                .build();
+        // Crear usuario bloqueado
+        User user = userRepository.save(newUser.toEntity());
+        user.setBlocked(true);
+        userRepository.save(user);
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username("blockedUser")
+                .password("password123")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        ErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertEquals("User is blocked", responseBody.getMessage());
+    }*/
+
 }

@@ -63,7 +63,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_Ok_no_sending_rol() throws Exception {
+    public void testRegisterUser_Ok_no_sending_rol() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("username")
@@ -93,7 +93,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_Ok_sending_rol_ADMIN() throws Exception {
+    public void testRegisterUser_Ok_sending_rol_ADMIN() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("username")
@@ -121,7 +121,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_RoleList() throws Exception {
+    public void testRegisterUser_RoleList() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("username")
@@ -149,7 +149,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_withInvalidEmail() throws Exception {
+    public void testRegisterUser_withInvalidEmail() {
         // Given
         UserInputDTO invalidUser = UserInputDTO.builder()
                 .username("newUser")
@@ -174,7 +174,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_RoleUserNotFoundInDB() throws Exception {
+    public void testRegisterUser_RoleUserNotFoundInDB() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("username")
@@ -201,7 +201,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_UsernameAlreadyExist() throws Exception {
+    public void testRegisterUser_UsernameAlreadyExist() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("username")

@@ -3,8 +3,7 @@ package com.inventario.inventario_api.service;
 import com.inventario.inventario_api.DTO.AuthResponse;
 import com.inventario.inventario_api.DTO.UserLoginDTO;
 import com.inventario.inventario_api.Utils.JwtUtil;
-import com.inventario.inventario_api.model.RoleEnum;
-import com.inventario.inventario_api.model.Roles;
+import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.repository.RolesRepository;
 import com.inventario.inventario_api.repository.UserRepository;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -47,23 +47,30 @@ public class UserService implements UserDetailsService {
     // Create or update user
     public User createUser(User user) {
 
-        this.userRepository.findUserByUsername(user.getUsername())
-                .ifPresent(u -> {
-                    throw new BadCredentialsException("Username already exists");
-                });
+        if (this.userRepository.existsUserByUsername(user.getUsername())) {
+            throw new BadCredentialsException("Username already exists");
+        }
 
-        Set<Roles> rolesDb = new HashSet<>(this.rolesRepository.findAll());
+        if (this.userRepository.existsUserByEmail(user.getEmail())) {
+            throw new BadCredentialsException("Email already exists");
+        }
+
+        Map<String, Role> rolesDb = this.rolesRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(Role::getName, role -> role));
 
         if (user.getRoles().isEmpty()) {
-            Roles userRole = rolesDb.stream()
-                    .filter(role -> role.getRole() == RoleEnum.USER)
-                    .findFirst()
-                    .orElseThrow(() -> new UsernameNotFoundException("Role 'User' not found in the database")); //TODO Revisar exception y status code correctos
-
-            user.setRoles(Set.of(userRole));
+            user.setRoles(Set.of(
+                    Optional.ofNullable(rolesDb.get("CUSTOMER"))
+                            .orElseThrow(() -> new UsernameNotFoundException("Role 'User' not found in the database"))
+            ));
         } else {
-            // Retener solo los roles que están en la base de datos
-            user.getRoles().retainAll(rolesDb);
+            Set<Role> assignedRoles = user.getRoles().stream()
+                    .map(role -> rolesDb.get(role.getName()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            user.setRoles(assignedRoles);
         }
 
         return this.userRepository.save(user);

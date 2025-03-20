@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -12,6 +14,6 @@ public class ErrorResponse {
 
     private HttpStatus statusCode;  // Código de estado HTTP
     private String message;  // Mensaje de error
-    private Object details;  // Detalles adicionales (opcional)
+    private Map<String, String> details;  // Detalles adicionales (opcional)
 
 }

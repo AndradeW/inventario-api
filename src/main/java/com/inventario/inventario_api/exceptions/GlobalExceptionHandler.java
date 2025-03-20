@@ -18,25 +18,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "Bad credentials", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "Bad credentials", Map.of("Error",ex.getMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "User not found", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "User not found", Map.of("Error",ex.getMessage()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "Invalid token", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "Invalid token", Map.of("Error",ex.getMessage()));
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(JWTVerificationException.class)
     public ResponseEntity<ErrorResponse> handleJWTVerificationException(JWTVerificationException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "Invalid token", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "Invalid token", Map.of("Error", ex.getMessage()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 

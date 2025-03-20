@@ -2,14 +2,14 @@ package com.inventario.inventario_api.DTO.Mapper;
 
 import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
-import com.inventario.inventario_api.model.Roles;
+import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
@@ -27,15 +27,20 @@ public interface UserMapper {
     @Mapping(target = "role", expression = "java(mapRolesToString(user.getRoles()))")
     UserDTO userToUserDTO(User user);
 
-    default Set<Roles> mapRolesToSet(String[] role) {
+    default Set<Role> mapRolesToSet(String[] role) {
+        HashSet<Role> roles = new HashSet<>();
+
         if (role == null || role.length == 0) {
             return Set.of();
         }
 
-        Roles userRole = new Roles();
-        Arrays.stream(role).forEach(userRole::setRole);
+        for (String roleName : role) {
+            Role userRole = new Role();
+            userRole.setName(roleName);
+            roles.add(userRole);
+        }
 
-        return Set.of(userRole);
+        return roles;
     }
 
     @Named("encryptPassword")
@@ -43,10 +48,10 @@ public interface UserMapper {
         return new BCryptPasswordEncoder().encode(password);
     }
 
-    default String[] mapRolesToString(Set<Roles> roles) {
+    default String[] mapRolesToString(Set<Role> roles) {
         if (roles == null || roles.isEmpty()) {
             return new String[0];
         }
-        return roles.stream().map(Roles::getRole).toArray(String[]::new);
+        return roles.stream().map(Role::getName).toArray(String[]::new);
     }
 }

@@ -3,7 +3,7 @@ package com.inventario.inventario_api.service;
 import com.inventario.inventario_api.DTO.AuthResponse;
 import com.inventario.inventario_api.DTO.UserLoginDTO;
 import com.inventario.inventario_api.Utils.JwtUtil;
-import com.inventario.inventario_api.model.Roles;
+import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.repository.RolesRepository;
 import com.inventario.inventario_api.repository.UserRepository;
@@ -51,9 +51,9 @@ public class UserService implements UserDetailsService {
             throw new BadCredentialsException("Username already exists");
         }
 
-        Map<String, Roles> rolesDb = this.rolesRepository.findAll()
+        Map<String, Role> rolesDb = this.rolesRepository.findAll()
                 .stream()
-                .collect(Collectors.toMap(Roles::getRole, role -> role));
+                .collect(Collectors.toMap(Role::getName, role -> role));
 
         if (user.getRoles().isEmpty()) {
             user.setRoles(Set.of(
@@ -61,8 +61,8 @@ public class UserService implements UserDetailsService {
                             .orElseThrow(() -> new UsernameNotFoundException("Role 'User' not found in the database"))
             ));
         } else {
-            Set<Roles> assignedRoles = user.getRoles().stream()
-                    .map(role -> rolesDb.get(role.getRole()))
+            Set<Role> assignedRoles = user.getRoles().stream()
+                    .map(role -> rolesDb.get(role.getName()))
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
 

@@ -3,7 +3,7 @@ package com.inventario.inventario_api.controller;
 import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
 import com.inventario.inventario_api.exceptions.ErrorResponse;
-import com.inventario.inventario_api.model.Roles;
+import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.repository.RolesRepository;
 import com.inventario.inventario_api.repository.UserRepository;
@@ -45,12 +45,12 @@ public class AuthControllerIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        Roles adminRole = new Roles();
-        adminRole.setRole("ADMIN");
+        Role adminRole = new Role();
+        adminRole.setName("ADMIN");
         this.rolesRepository.save(adminRole);
 
-        Roles userRole = new Roles();
-        userRole.setRole("CUSTOMER");
+        Role userRole = new Role();
+        userRole.setName("CUSTOMER");
         this.rolesRepository.save(userRole);
     }
 
@@ -72,8 +72,8 @@ public class AuthControllerIntegrationTest {
                 .phone("phone")
                 .build();
 
-        List<Roles> roles = this.rolesRepository.findAll();
-        System.out.println("Roles in DB: " + roles.size());
+        List<Role> roles = this.rolesRepository.findAll();
+        System.out.println("Role in DB: " + roles.size());
 
         // When
         ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
@@ -113,7 +113,35 @@ public class AuthControllerIntegrationTest {
         assertEquals(newUser.getName(), responseBody.getName());
         assertEquals(newUser.getUsername(), responseBody.getUsername());
         assertEquals(newUser.getEmail(), responseBody.getEmail());
-        assertEquals("ADMIN", responseBody.getRole()[0]);
+        assertArrayEquals(newUser.getRole(), responseBody.getRole());
+        assertEquals(newUser.getAddress(), responseBody.getAddress());
+        assertEquals(newUser.getPhone(), responseBody.getPhone());
+    }
+
+    @Test
+    public void testRegisterUser_RoleList() throws Exception {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("username")
+                .email("email@email.com")
+                .password("password")
+                .name("name")
+                .address("address")
+                .phone("phone")
+                .role(new String[]{"ADMIN", "CUSTOMER"})
+                .build();
+
+        // When
+        ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+
+        // Then
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        UserDTO responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(newUser.getName(), responseBody.getName());
+        assertEquals(newUser.getUsername(), responseBody.getUsername());
+        assertEquals(newUser.getEmail(), responseBody.getEmail());
+        assertArrayEquals(newUser.getRole(), responseBody.getRole());
         assertEquals(newUser.getAddress(), responseBody.getAddress());
         assertEquals(newUser.getPhone(), responseBody.getPhone());
     }

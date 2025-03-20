@@ -52,6 +52,10 @@ public interface UserMapper {
         if (roles == null || roles.isEmpty()) {
             return new String[0];
         }
-        return roles.stream().map(Role::getName).toArray(String[]::new);
+
+        return roles.stream()
+                .map(Role::getName)
+                .sorted()
+                .toArray(String[]::new);
     }
 }

@@ -1,7 +1,9 @@
 package com.inventario.inventario_api.controller;
 
+import com.inventario.inventario_api.DTO.AuthResponse;
 import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
+import com.inventario.inventario_api.DTO.UserLoginDTO;
 import com.inventario.inventario_api.exceptions.ErrorResponse;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
@@ -228,26 +230,118 @@ public class AuthControllerIntegrationTest {
         assertEquals("Username already exists", apiError.getDetails().get("Error"));
     }
 
-}
+    @Test
+    public void testLoginUser_OK() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
 
-//    @Test
-//    public void testLoginUser() {
-//        // Crear un usuario previamente registrado
-//        User user = new User("testuser", "password123");
-//
-//        // Registrar al usuario (puedes hacerlo directamente o usando un mock de base de datos)
-//        restTemplate.postForEntity(registerUrl, user, User.class);
-//
-//        // Crear una solicitud de autenticación (por ejemplo, usando un body con username y password)
-//        AuthRequest authRequest = new AuthRequest("testuser", "password123");
-//
-//        // Enviar la solicitud POST a /auth/login
-//        ResponseEntity<AuthResponse> response = restTemplate.postForEntity(loginUrl, authRequest, AuthResponse.class);
-//
-//        // Verificar que el estado de la respuesta sea 200 OK
-//        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-//
-//        // Verificar que el token JWT esté presente
-//        assertThat(response.getBody().getToken()).isNotEmpty();
-//    }
-//}
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username("testuser")
+                .password("password123")
+                .build();
+
+        // When
+        ResponseEntity<AuthResponse> response = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        AuthResponse responseBody = response.getBody();
+        assertNotNull(responseBody);
+
+        assertEquals(newUser.getUsername(), responseBody.username());
+        assertEquals("", responseBody.message());
+        assertNotNull(responseBody.token());
+        assertTrue(responseBody.status());
+    }
+
+    @Test
+    public void testLoginUser_noUsername() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .password("password123")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody);
+
+        assertEquals("Validations error", responseBody.getMessage());
+        assertTrue(responseBody.getDetails().containsKey("username"));
+        assertEquals("no debe estar vacío", responseBody.getDetails().get("username"));
+    }
+
+    @Test
+    public void testLoginUser_noPassword() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                        .username("testuser")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody);
+
+        assertEquals("Validations error", responseBody.getMessage());
+        assertTrue(responseBody.getDetails().containsKey("password"));
+        assertEquals("no debe estar vacío", responseBody.getDetails().get("password"));
+    }
+
+    @Test
+    public void testLoginUser_wrongPassword() {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                        .username("testuser")
+                .password("wrongpassword")
+                .build();
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody);
+
+        assertEquals("Bad credentials", responseBody.getMessage());
+        assertTrue(responseBody.getDetails().containsKey("Error"));
+        assertEquals("Contraseña incorrecta", responseBody.getDetails().get("Error"));
+    }
+}

@@ -33,7 +33,7 @@ public interface UserMapper {
         }
 
         Roles userRole = new Roles();
-        Arrays.stream(role).forEach(userRole::setName);
+        Arrays.stream(role).forEach(userRole::setRole);
 
         return Set.of(userRole);
     }
@@ -47,6 +47,6 @@ public interface UserMapper {
         if (roles == null || roles.isEmpty()) {
             return new String[0];
         }
-        return roles.stream().map(r -> r.getRole().name()).toArray(String[]::new);
+        return roles.stream().map(Roles::getRole).toArray(String[]::new);
     }
 }

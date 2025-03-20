@@ -1,5 +1,5 @@
 package com.inventario.inventario_api.model;
 
-public enum RoleEnum {
-    ADMIN, SELLER, CUSTOMER
-}
+//public enum RoleEnum {
+//    ADMIN, SELLER, CUSTOMER
+//}

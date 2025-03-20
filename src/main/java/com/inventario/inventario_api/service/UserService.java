@@ -3,7 +3,6 @@ package com.inventario.inventario_api.service;
 import com.inventario.inventario_api.DTO.AuthResponse;
 import com.inventario.inventario_api.DTO.UserLoginDTO;
 import com.inventario.inventario_api.Utils.JwtUtil;
-import com.inventario.inventario_api.model.RoleEnum;
 import com.inventario.inventario_api.model.Roles;
 import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.repository.RolesRepository;
@@ -52,13 +51,13 @@ public class UserService implements UserDetailsService {
             throw new BadCredentialsException("Username already exists");
         }
 
-        Map<RoleEnum, Roles> rolesDb = this.rolesRepository.findAll()
+        Map<String, Roles> rolesDb = this.rolesRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(Roles::getRole, role -> role));
 
         if (user.getRoles().isEmpty()) {
             user.setRoles(Set.of(
-                    Optional.ofNullable(rolesDb.get(RoleEnum.CUSTOMER))
+                    Optional.ofNullable(rolesDb.get("CUSTOMER"))
                             .orElseThrow(() -> new UsernameNotFoundException("Role 'User' not found in the database"))
             ));
         } else {

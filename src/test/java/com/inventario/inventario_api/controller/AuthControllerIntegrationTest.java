@@ -10,17 +10,13 @@ import com.inventario.inventario_api.model.User;
 import com.inventario.inventario_api.repository.RolesRepository;
 import com.inventario.inventario_api.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,11 +35,6 @@ public class AuthControllerIntegrationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
-
-    @BeforeAll
-    public static void init() {
-
-    }
 
     @BeforeEach
     public void setUp() {
@@ -73,9 +64,6 @@ public class AuthControllerIntegrationTest {
                 .address("address")
                 .phone("phone")
                 .build();
-
-        List<Role> roles = this.rolesRepository.findAll();
-        System.out.println("Role in DB: " + roles.size());
 
         // When
         ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
@@ -310,7 +298,7 @@ public class AuthControllerIntegrationTest {
         assertTrue(apiError.getDetails().containsKey("email"));
         assertEquals("El correo electrónico no puede estar vacío", apiError.getDetails().get("email"));
         assertTrue(apiError.getDetails().containsKey("password"));
-        assertEquals("La contraseña no puede estar vacía",apiError.getDetails().get("password"));
+        assertEquals("La contraseña no puede estar vacía", apiError.getDetails().get("password"));
     }
 
 
@@ -500,5 +488,142 @@ public class AuthControllerIntegrationTest {
         assertNotNull(responseBody);
         assertEquals("User is blocked", responseBody.getMessage());
     }*/
+
+    // ------------------------------------- JWT ---------------------------------------------------------------------
+    @Test
+    public void testAccessProtectedRouteWithJWT() throws InterruptedException {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username("testuser")
+                .password("password123")
+                .build();
+
+        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
+        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
+        AuthResponse responseBody = loginResponse.getBody();
+        assertNotNull(responseBody);
+
+        String token = responseBody.token();
+        assertNotNull(token);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+
+        // When
+        ResponseEntity<String> resp = this.restTemplate.exchange("/api/users", HttpMethod.GET, entity, String.class);
+
+        // Then
+        assertEquals(HttpStatus.OK, resp.getStatusCode());
+    }
+
+    @Test
+    public void testAccessProtectedRouteWithInvalidJWT() throws InterruptedException {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username("testuser")
+                .password("password123")
+                .build();
+
+        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
+        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
+        AuthResponse loginResponseBody = loginResponse.getBody();
+        assertNotNull(loginResponseBody);
+
+        String token = loginResponseBody.token();
+        assertNotNull(token);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token + "invalid");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        // When
+        ResponseEntity<ErrorResponse> resp = this.restTemplate.exchange("/api/users", HttpMethod.GET, entity, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.UNAUTHORIZED, resp.getStatusCode());
+        ErrorResponse responseBody = resp.getBody();
+        assertNotNull(responseBody);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, responseBody.getStatusCode());
+        assertEquals("Invalid token", responseBody.getMessage());
+        assertTrue(responseBody.getDetails().containsKey("Error"));
+        assertEquals("Token inválido", responseBody.getDetails().get("Error"));
+    }
+
+    @Test
+    public void testTokenExpiration() throws InterruptedException {
+        // Given
+        UserInputDTO newUser = UserInputDTO.builder()
+                .username("testuser")
+                .email("testuser@email.com")
+                .password("password123").build();
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username("testuser")
+                .password("password123")
+                .build();
+
+        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
+        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
+        AuthResponse loginResponseBody = loginResponse.getBody();
+        assertNotNull(loginResponseBody);
+
+        String token = loginResponseBody.token();
+        assertNotNull(token);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        Thread.sleep(3000);
+
+        // When
+        ResponseEntity<ErrorResponse> resp = this.restTemplate.exchange("/api/users", HttpMethod.GET, entity, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.UNAUTHORIZED, resp.getStatusCode());
+        ErrorResponse responseBody = resp.getBody();
+        assertNotNull(responseBody);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, responseBody.getStatusCode());
+        assertEquals("Invalid token", responseBody.getMessage());
+        assertTrue(responseBody.getDetails().containsKey("Error"));
+        assertEquals("El token ha expirado", responseBody.getDetails().get("Error"));
+    }
+
+//    @Test
+//    public void testTokenRefresh() {
+//        String refreshToken = getValidRefreshToken(); // Obtener un token de refresco válido
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Bearer " + refreshToken);
+//        HttpEntity<String> entity = new HttpEntity<>(headers);
+//
+//        ResponseEntity<Map> response = this.restTemplate.exchange("/api/refresh-token", HttpMethod.POST, entity, Map.class);
+//
+//        assertEquals(HttpStatus.OK, response.getStatusCode());
+//        assertTrue(response.getBody().containsKey("newToken"));
+//    }
 
 }

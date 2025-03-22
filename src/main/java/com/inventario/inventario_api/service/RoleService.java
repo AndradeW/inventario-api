@@ -2,6 +2,7 @@ package com.inventario.inventario_api.service;
 
 import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
+import com.inventario.inventario_api.repository.PermissionRepository;
 import com.inventario.inventario_api.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,27 +20,22 @@ public class RoleService {
     @Autowired
     private PermissionRepository permissionRepository;
 
-    // Crear un nuevo rol
     public Role createRole(Role role) {
         return this.roleRepository.save(role);
     }
 
-    // Obtener todos los roles
     public List<Role> getAllRoles() {
         return this.roleRepository.findAll();
     }
 
-    // Obtener rol por id
     public Optional<Role> getRoleById(Long id) {
         return this.roleRepository.findById(id);
     }
 
-    // Obtener rol por nombre
     public Optional<Role> getRoleByName(String name) {
         return this.roleRepository.findByName(name);
     }
 
-    // Actualizar rol
     @Transactional
     public Role updateRole(Long id, Role updatedRole) {
         Optional<Role> roleOptional = this.roleRepository.findById(id);
@@ -53,7 +49,6 @@ public class RoleService {
         return null;
     }
 
-    // Eliminar rol
     @Transactional
     public void deleteRole(Long id) {
         this.roleRepository.deleteById(id);

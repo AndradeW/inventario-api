@@ -30,6 +30,7 @@ public class AuthControllerIntegrationTest {
     private static final String TEST_USERNAME = "testuser";
     private static final String TEST_EMAIL = "testuser@email.com";
     private static final String TEST_PASSWORD = "password123";
+    private static final String[] TEST_ADMIN_ROLE = {"ADMIN"};
 
     @Autowired
     private RolesRepository rolesRepository;
@@ -59,14 +60,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_Ok_no_sending_rol() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, new String[]{});
 
         // When
         ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
@@ -86,15 +80,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_Ok_sending_rol_ADMIN() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .role(new String[]{"ADMIN"})
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
@@ -114,15 +100,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_RoleList() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .role(new String[]{"ADMIN", "CUSTOMER"})
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, new String[]{"ADMIN", "CUSTOMER"});
 
         // When
         ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
@@ -142,17 +120,10 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_withInvalidEmail() {
         // Given
-        UserInputDTO invalidUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email("invalid-email")
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, "invalid-email", TEST_PASSWORD, TEST_ADMIN_ROLE);
 
         // When
-        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, invalidUser, ErrorResponse.class);
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -165,16 +136,9 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_RoleUserNotFoundInDB() {
+    public void testRegisterUser_RoleUserNotFoundInDB() { //TODO solo funciona con CUSTOMER
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, new String[]{"CUSTOMER"});
 
         this.rolesRepository.deleteAll();
 
@@ -194,21 +158,12 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_UsernameAlreadyExist() {
         // Given
-
-        String existingUsername = TEST_USERNAME;
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(existingUsername)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
-
         this.userRepository.save(
                 User.builder()
-                        .username(existingUsername).build()
+                        .username(TEST_USERNAME).build()
         );
+
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
@@ -226,21 +181,12 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_EmailAlreadyExists() {
         // Given
-        String existingEmail = TEST_EMAIL;
-
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(existingEmail)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
-
         this.userRepository.save(
                 User.builder()
-                        .email(existingEmail).build()
+                        .email(TEST_EMAIL).build()
         );
+
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
@@ -258,14 +204,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_ShortPassword() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password("123")
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, "123", TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
@@ -281,14 +220,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_MissingFields() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-//                .email("")
-//                .password("")
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, null, null, TEST_ADMIN_ROLE); //TODO revisar si se puede enviar strings vacios
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
@@ -308,14 +240,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_InvalidUsername() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username("invalid!user")
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD)
-                .name("name")
-                .address("address")
-                .phone("phone")
-                .build();
+        UserInputDTO newUser = this.createUser("invalid!&%username", TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
@@ -628,5 +553,18 @@ public class AuthControllerIntegrationTest {
 //        assertEquals(HttpStatus.OK, response.getStatusCode());
 //        assertTrue(response.getBody().containsKey("newToken"));
 //    }
+
+    private UserInputDTO createUser(String username, String email, String password, String[] role) {
+        return UserInputDTO.builder()
+                .username(username)
+                .email(email)
+                .password(password)
+                .role(role)
+                .name("name")
+                .address("address")
+                .phone("phone")
+                .build();
+    }
+
 
 }

@@ -49,5 +49,10 @@ public class RoleController {
     public Role addPermissionsToRole(@PathVariable Long roleId, @RequestBody List<Long> permissionIds) {
         return this.roleService.addPermissionsToRole(roleId, permissionIds);
     }
+
+    @PostMapping("/{roleName}/permissions")
+    public Role addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody List<String> permissionNames) {
+        return this.roleService.addPermissionsToRoleByName(roleName, permissionNames);
+    }
 }
 

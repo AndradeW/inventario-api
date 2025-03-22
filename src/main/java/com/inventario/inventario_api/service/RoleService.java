@@ -4,6 +4,7 @@ import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.repository.PermissionRepository;
 import com.inventario.inventario_api.repository.RoleRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,5 +67,28 @@ public class RoleService {
             return this.roleRepository.save(role);
         }
         return null;
+    }
+
+    @Transactional
+    public Role addPermissionsToRoleByName(String roleName, List<String> permissionNames) {
+        // Buscar el rol por nombre
+        Optional<Role> roleOptional = this.roleRepository.findByName(roleName);
+        if (roleOptional.isEmpty()) {
+            throw new EntityNotFoundException("Role with name " + roleName + " not found");
+        }
+        Role role = roleOptional.get();
+
+        // Buscar y agregar los permisos al rol
+        for (String permissionName : permissionNames) {
+            Optional<Permission> permissionOptional = this.permissionRepository.findByName(permissionName);
+            if (permissionOptional.isPresent()) {
+                Permission permission = permissionOptional.get();
+                role.getPermissionsList().add(permission);
+            } else {
+                throw new EntityNotFoundException("Permission with name " + permissionName + " not found");
+            }
+        }
+
+        return this.roleRepository.save(role);
     }
 }

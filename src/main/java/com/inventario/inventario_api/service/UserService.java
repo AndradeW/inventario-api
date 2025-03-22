@@ -5,7 +5,7 @@ import com.inventario.inventario_api.DTO.UserLoginDTO;
 import com.inventario.inventario_api.Utils.JwtUtil;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
-import com.inventario.inventario_api.repository.RolesRepository;
+import com.inventario.inventario_api.repository.RoleRepository;
 import com.inventario.inventario_api.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,14 +29,14 @@ public class UserService implements UserDetailsService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final RolesRepository rolesRepository;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder, RolesRepository rolesRepository) {
+    public UserService(UserRepository userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
-        this.rolesRepository = rolesRepository;
+        this.roleRepository = roleRepository;
     }
 
     // Create or update user
@@ -55,7 +55,7 @@ public class UserService implements UserDetailsService {
             throw new BadCredentialsException("Email already exists");
         }
 
-        Map<String, Role> rolesDb = this.rolesRepository.findAll()
+        Map<String, Role> rolesDb = this.roleRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(Role::getName, role -> role));
 

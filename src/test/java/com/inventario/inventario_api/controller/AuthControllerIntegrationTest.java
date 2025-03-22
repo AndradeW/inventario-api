@@ -7,7 +7,7 @@ import com.inventario.inventario_api.DTO.UserLoginDTO;
 import com.inventario.inventario_api.exceptions.ErrorResponse;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
-import com.inventario.inventario_api.repository.RolesRepository;
+import com.inventario.inventario_api.repository.RoleRepository;
 import com.inventario.inventario_api.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ public class AuthControllerIntegrationTest {
     private static final String[] TEST_CUSTOMER_ROLE = {ROLE_CUSTOMER};
 
     @Autowired
-    private RolesRepository rolesRepository;
+    private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
 
@@ -47,17 +47,17 @@ public class AuthControllerIntegrationTest {
     public void setUp() {
         Role adminRole = new Role();
         adminRole.setName("ADMIN");
-        this.rolesRepository.save(adminRole);
+        this.roleRepository.save(adminRole);
 
         Role userRole = new Role();
         userRole.setName("CUSTOMER");
-        this.rolesRepository.save(userRole);
+        this.roleRepository.save(userRole);
     }
 
     @AfterEach
     void tearDown() {
         this.userRepository.deleteAll();
-        this.rolesRepository.deleteAll();
+        this.roleRepository.deleteAll();
     }
 
     @Test
@@ -143,7 +143,7 @@ public class AuthControllerIntegrationTest {
         // Given
         UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_CUSTOMER_ROLE);
 
-        this.rolesRepository.deleteAll();
+        this.roleRepository.deleteAll();
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);

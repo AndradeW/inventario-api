@@ -27,6 +27,9 @@ public class AuthControllerIntegrationTest {
     private static final String REGISTER_URL = "/auth/register";
     private static final String LOGIN_URL = "/auth/login";
 
+    private static final String TEST_USERNAME = "testuser";
+    private static final String TEST_EMAIL = "testuser@email.com";
+    private static final String TEST_PASSWORD = "password123";
 
     @Autowired
     private RolesRepository rolesRepository;
@@ -57,9 +60,9 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_Ok_no_sending_rol() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("username")
-                .email("email@email.com")
-                .password("password")
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -84,9 +87,9 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_Ok_sending_rol_ADMIN() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("username")
-                .email("email@email.com")
-                .password("password")
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -112,9 +115,9 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_RoleList() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("username")
-                .email("email@email.com")
-                .password("password")
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -140,9 +143,9 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_withInvalidEmail() {
         // Given
         UserInputDTO invalidUser = UserInputDTO.builder()
-                .username("newUser")
+                .username(TEST_USERNAME)
                 .email("invalid-email")
-                .password("password")
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -165,9 +168,9 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_RoleUserNotFoundInDB() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("username")
-                .email("email@email.com")
-                .password("password")
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -192,11 +195,11 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_UsernameAlreadyExist() {
         // Given
 
-        String existingUsername = "username";
+        String existingUsername = TEST_USERNAME;
         UserInputDTO newUser = UserInputDTO.builder()
                 .username(existingUsername)
-                .email("email@email.com")
-                .password("password")
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -223,12 +226,12 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_EmailAlreadyExists() {
         // Given
-        String existingEmail = "email@email.com";
+        String existingEmail = TEST_EMAIL;
 
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("existingUser")
+                .username(TEST_USERNAME)
                 .email(existingEmail)
-                .password("password")
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -256,8 +259,8 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_ShortPassword() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("newUser")
-                .email("email@email.com")
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
                 .password("123")
                 .name("name")
                 .address("address")
@@ -279,7 +282,7 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_MissingFields() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("username")
+                .username(TEST_USERNAME)
 //                .email("")
 //                .password("")
                 .name("name")
@@ -306,9 +309,9 @@ public class AuthControllerIntegrationTest {
     public void testRegisterUser_InvalidUsername() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("invalid!user")  // Nombre de usuario con caracteres no permitidos
-                .email("validemail@email.com")
-                .password("password123")
+                .username("invalid!user")
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD)
                 .name("name")
                 .address("address")
                 .phone("phone")
@@ -330,16 +333,16 @@ public class AuthControllerIntegrationTest {
     public void testLoginUser_OK() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username("testuser")
-                .password("password123")
+                .username(TEST_USERNAME)
+                .password(TEST_PASSWORD)
                 .build();
 
         // When
@@ -361,7 +364,7 @@ public class AuthControllerIntegrationTest {
         // Given
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
                 .username("nonexistentUser")
-                .password("password123")
+                .password(TEST_PASSWORD)
                 .build();
 
         // When
@@ -379,15 +382,15 @@ public class AuthControllerIntegrationTest {
     public void testLoginUser_noUsername() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .password("password123")
+                .password(TEST_PASSWORD)
                 .build();
 
         // When
@@ -407,15 +410,15 @@ public class AuthControllerIntegrationTest {
     public void testLoginUser_noPassword() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username("testuser")
+                .username(TEST_USERNAME)
                 .build();
 
         // When
@@ -435,15 +438,15 @@ public class AuthControllerIntegrationTest {
     public void testLoginUser_wrongPassword() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username("testuser")
+                .username(TEST_USERNAME)
                 .password("wrongpassword")
                 .build();
 
@@ -494,16 +497,16 @@ public class AuthControllerIntegrationTest {
     public void testAccessProtectedRouteWithJWT() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username("testuser")
-                .password("password123")
+                .username(TEST_USERNAME)
+                .password(TEST_PASSWORD)
                 .build();
 
         ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
@@ -515,7 +518,7 @@ public class AuthControllerIntegrationTest {
         assertNotNull(token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
 
@@ -530,16 +533,16 @@ public class AuthControllerIntegrationTest {
     public void testAccessProtectedRouteWithInvalidJWT() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username("testuser")
-                .password("password123")
+                .username(TEST_USERNAME)
+                .password(TEST_PASSWORD)
                 .build();
 
         ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
@@ -551,7 +554,7 @@ public class AuthControllerIntegrationTest {
         assertNotNull(token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token + "invalid");
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token + "invalid");
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // When
@@ -572,16 +575,16 @@ public class AuthControllerIntegrationTest {
     public void testTokenExpiration() throws InterruptedException {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
-                .username("testuser")
-                .email("testuser@email.com")
-                .password("password123").build();
+                .username(TEST_USERNAME)
+                .email(TEST_EMAIL)
+                .password(TEST_PASSWORD).build();
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
         assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username("testuser")
-                .password("password123")
+                .username(TEST_USERNAME)
+                .password(TEST_PASSWORD)
                 .build();
 
         ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
@@ -593,7 +596,7 @@ public class AuthControllerIntegrationTest {
         assertNotNull(token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
+        headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         Thread.sleep(3000);

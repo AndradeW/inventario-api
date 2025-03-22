@@ -491,7 +491,7 @@ public class AuthControllerIntegrationTest {
 
     // ------------------------------------- JWT ---------------------------------------------------------------------
     @Test
-    public void testAccessProtectedRouteWithJWT() throws InterruptedException {
+    public void testAccessProtectedRouteWithJWT() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("testuser")
@@ -527,7 +527,7 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testAccessProtectedRouteWithInvalidJWT() throws InterruptedException {
+    public void testAccessProtectedRouteWithInvalidJWT() {
         // Given
         UserInputDTO newUser = UserInputDTO.builder()
                 .username("testuser")

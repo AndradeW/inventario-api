@@ -223,7 +223,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_MissingFields() {
         // Given
-        UserInputDTO newUser = this.createUser(TEST_USERNAME, null, null, TEST_ADMIN_ROLE);
+        UserInputDTO newUser = this.createUser(null, null, null, TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
@@ -233,6 +233,8 @@ public class AuthControllerIntegrationTest {
         ErrorResponse apiError = response.getBody();
         assertNotNull(apiError);
         assertEquals("Validations error", apiError.getMessage());
+        assertTrue(apiError.getDetails().containsKey("username"));
+        assertEquals("El nombre de usuario no puede estar vacío", apiError.getDetails().get("username"));
         assertTrue(apiError.getDetails().containsKey("email"));
         assertEquals("El correo electrónico no puede estar vacío", apiError.getDetails().get("email"));
         assertTrue(apiError.getDetails().containsKey("password"));
@@ -252,10 +254,12 @@ public class AuthControllerIntegrationTest {
         ErrorResponse apiError = response.getBody();
         assertNotNull(apiError);
         assertEquals("Validations error", apiError.getMessage());
+        assertTrue(apiError.getDetails().containsKey("username"));
+        assertEquals("El nombre de usuario debe tener entre 3 y 20 caracteres", apiError.getDetails().get("username"));
         assertTrue(apiError.getDetails().containsKey("email"));
         assertEquals("El correo electrónico no puede estar vacío", apiError.getDetails().get("email"));
         assertTrue(apiError.getDetails().containsKey("password"));
-        assertEquals("La contraseña no puede estar vacía", apiError.getDetails().get("password"));
+        assertEquals("La contraseña debe tener al menos 8 caracteres", apiError.getDetails().get("password"));
     }
 
 
@@ -279,13 +283,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testLoginUser_OK() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+        this.createTestUserOk();
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
                 .username(TEST_USERNAME)
@@ -300,7 +298,7 @@ public class AuthControllerIntegrationTest {
         AuthResponse responseBody = response.getBody();
         assertNotNull(responseBody);
 
-        assertEquals(newUser.getUsername(), responseBody.username());
+        assertEquals(TEST_USERNAME, responseBody.username());
         assertEquals("", responseBody.message());
         assertNotNull(responseBody.token());
         assertTrue(responseBody.status());
@@ -328,13 +326,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testLoginUser_noUsername() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+        this.createTestUserOk();
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
                 .password(TEST_PASSWORD)
@@ -356,13 +348,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testLoginUser_noPassword() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+        this.createTestUserOk();
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
                 .username(TEST_USERNAME)
@@ -384,13 +370,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testLoginUser_wrongPassword() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+        this.createTestUserOk();
 
         UserLoginDTO userLoginDTO = UserLoginDTO.builder()
                 .username(TEST_USERNAME)
@@ -443,25 +423,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testAccessProtectedRouteWithJWT() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
-
-        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username(TEST_USERNAME)
-                .password(TEST_PASSWORD)
-                .build();
-
-        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
-        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
-        AuthResponse responseBody = loginResponse.getBody();
-        assertNotNull(responseBody);
-
-        String token = responseBody.token();
+        String token = this.getToken();
         assertNotNull(token);
 
         HttpHeaders headers = new HttpHeaders();
@@ -476,28 +438,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.OK, resp.getStatusCode());
     }
 
+
+
     @Test
     public void testAccessProtectedRouteWithInvalidJWT() {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
-
-        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username(TEST_USERNAME)
-                .password(TEST_PASSWORD)
-                .build();
-
-        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
-        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
-        AuthResponse loginResponseBody = loginResponse.getBody();
-        assertNotNull(loginResponseBody);
-
-        String token = loginResponseBody.token();
+        String token = this.getToken();
         assertNotNull(token);
 
         HttpHeaders headers = new HttpHeaders();
@@ -521,25 +467,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testTokenExpiration() throws InterruptedException {
         // Given
-        UserInputDTO newUser = UserInputDTO.builder()
-                .username(TEST_USERNAME)
-                .email(TEST_EMAIL)
-                .password(TEST_PASSWORD).build();
-
-        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
-        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
-
-        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
-                .username(TEST_USERNAME)
-                .password(TEST_PASSWORD)
-                .build();
-
-        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
-        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
-        AuthResponse loginResponseBody = loginResponse.getBody();
-        assertNotNull(loginResponseBody);
-
-        String token = loginResponseBody.token();
+        String token = this.getToken();
         assertNotNull(token);
 
         HttpHeaders headers = new HttpHeaders();
@@ -588,5 +516,29 @@ public class AuthControllerIntegrationTest {
                 .build();
     }
 
+    private void createTestUserOk(){
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
 
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+    }
+
+    private String getToken() {
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
+
+        ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
+        assertEquals(HttpStatus.CREATED, userCreateResponse.getStatusCode());
+
+        UserLoginDTO userLoginDTO = UserLoginDTO.builder()
+                .username(TEST_USERNAME)
+                .password(TEST_PASSWORD)
+                .build();
+
+        ResponseEntity<AuthResponse> loginResponse = this.restTemplate.postForEntity(LOGIN_URL, userLoginDTO, AuthResponse.class);
+        assertEquals(HttpStatus.OK, loginResponse.getStatusCode());
+        AuthResponse responseBody = loginResponse.getBody();
+        assertNotNull(responseBody);
+
+        return responseBody.token();
+    }
 }

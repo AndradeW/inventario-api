@@ -31,7 +31,9 @@ public interface UserMapper {
         HashSet<Role> roles = new HashSet<>();
 
         if (role == null || role.length == 0) {
-            return Set.of();
+            Role userRole = new Role();
+            userRole.setName(Role.ROLE_CUSTOMER);
+            return Set.of(userRole);
         }
 
         for (String roleName : role) {

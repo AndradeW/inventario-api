@@ -59,19 +59,23 @@ public class UserService implements UserDetailsService {
                 .stream()
                 .collect(Collectors.toMap(Role::getName, role -> role));
 
-        if (user.getRoles().isEmpty()) {
-            user.setRoles(Set.of(
-                    Optional.ofNullable(rolesDb.get("CUSTOMER"))
-                            .orElseThrow(() -> new UsernameNotFoundException("Role 'User' not found in the database"))
-            ));
-        } else {
-            Set<Role> assignedRoles = user.getRoles().stream()
-                    .map(role -> rolesDb.get(role.getName()))
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
+        Set<Role> assignedRoles = new HashSet<>();
+        Set<String> missingRoles = new HashSet<>();
 
-            user.setRoles(assignedRoles);
+        for (Role role : user.getRoles()) {
+            Role roleFromDb = rolesDb.get(role.getName());
+            if (roleFromDb != null) {
+                assignedRoles.add(roleFromDb);
+            } else {
+                missingRoles.add(role.getName());
+            }
         }
+
+        if (!missingRoles.isEmpty()) {
+            throw new BadCredentialsException("Roles do not match: " + String.join(", ", missingRoles));
+        }
+
+        user.setRoles(assignedRoles);
 
         return this.userRepository.save(user);
     }

@@ -18,6 +18,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
+import static com.inventario.inventario_api.model.Role.ROLE_ADMIN;
+import static com.inventario.inventario_api.model.Role.ROLE_CUSTOMER;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -30,7 +32,8 @@ public class AuthControllerIntegrationTest {
     private static final String TEST_USERNAME = "testuser";
     private static final String TEST_EMAIL = "testuser@email.com";
     private static final String TEST_PASSWORD = "password123";
-    private static final String[] TEST_ADMIN_ROLE = {"ADMIN"};
+    private static final String[] TEST_ADMIN_ROLE = {ROLE_ADMIN};
+    private static final String[] TEST_CUSTOMER_ROLE = {ROLE_CUSTOMER};
 
     @Autowired
     private RolesRepository rolesRepository;
@@ -72,7 +75,7 @@ public class AuthControllerIntegrationTest {
         assertEquals(newUser.getName(), responseBody.getName());
         assertEquals(newUser.getUsername(), responseBody.getUsername());
         assertEquals(newUser.getEmail(), responseBody.getEmail());
-        assertEquals("CUSTOMER", responseBody.getRole()[0]);
+        assertEquals(ROLE_CUSTOMER, responseBody.getRole()[0]);
         assertEquals(newUser.getAddress(), responseBody.getAddress());
         assertEquals(newUser.getPhone(), responseBody.getPhone());
     }
@@ -100,7 +103,7 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_RoleList() {
         // Given
-        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, new String[]{"ADMIN", "CUSTOMER"});
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, new String[]{ROLE_ADMIN, ROLE_CUSTOMER});
 
         // When
         ResponseEntity<UserDTO> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);
@@ -136,9 +139,9 @@ public class AuthControllerIntegrationTest {
     }
 
     @Test
-    public void testRegisterUser_RoleUserNotFoundInDB() { //TODO solo funciona con CUSTOMER
+    public void testRegisterUser_RoleUserNotFoundInDB() {
         // Given
-        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, new String[]{"CUSTOMER"});
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_CUSTOMER_ROLE);
 
         this.rolesRepository.deleteAll();
 
@@ -146,13 +149,13 @@ public class AuthControllerIntegrationTest {
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
 
         // Then
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         ErrorResponse apiError = response.getBody();
         assertNotNull(apiError);
-        assertEquals(HttpStatus.NOT_FOUND, apiError.getStatusCode());
-        assertEquals("User not found", apiError.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, apiError.getStatusCode());
+        assertEquals("Bad credentials", apiError.getMessage());
         assertTrue(apiError.getDetails().containsKey("Error"));
-        assertEquals("Role 'User' not found in the database", apiError.getDetails().get("Error"));
+        assertEquals("Roles do not match: " + ROLE_CUSTOMER, apiError.getDetails().get("Error"));
     }
 
     @Test

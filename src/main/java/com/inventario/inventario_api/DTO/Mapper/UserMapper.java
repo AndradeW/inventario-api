@@ -2,75 +2,62 @@ package com.inventario.inventario_api.DTO.Mapper;
 
 import com.inventario.inventario_api.DTO.UserDTO;
 import com.inventario.inventario_api.DTO.UserInputDTO;
+import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-@Component
-public class UserMapper {
+import java.util.HashSet;
+import java.util.Set;
 
-    private final PasswordEncoder encoder;
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    @Autowired
-    public UserMapper(PasswordEncoder encoder) {
-        this.encoder = encoder;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "isEnabled", constant = "true")
+    @Mapping(target = "accountNoExpired", constant = "true")
+    @Mapping(target = "accountNoLocked", constant = "true")
+    @Mapping(target = "credentialsNoExpired", constant = "true")
+    @Mapping(target = "roles", expression = "java(mapRolesToSet(userInputDTO.getRole()))")
+    @Mapping(target = "password", qualifiedByName = "encryptPassword")
+    User userInputDTOToUser(UserInputDTO userInputDTO);
 
-    public UserDTO userToUserDTO(User user) {
-        if (user == null) {
-            return null;
+    @Mapping(target = "role", expression = "java(mapRolesToString(user.getRoles()))")
+    UserDTO userToUserDTO(User user);
+
+    default Set<Role> mapRolesToSet(String[] role) {
+        HashSet<Role> roles = new HashSet<>();
+
+        if (role == null || role.length == 0) {
+            Role userRole = new Role();
+            userRole.setName(Role.ROLE_CUSTOMER);
+            return Set.of(userRole);
         }
 
-        UserDTO userDTO = new UserDTO();
-
-        userDTO.setId(user.getId());
-        userDTO.setName(user.getName());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setAddress(user.getAddress());
-        userDTO.setPhone(user.getPhone());
-
-        return userDTO;
-    }
-
-    public User userDTOToUser(UserDTO userDTO) {
-        if (userDTO == null) {
-            return null;
+        for (String roleName : role) {
+            Role userRole = new Role();
+            userRole.setName(roleName);
+            roles.add(userRole);
         }
 
-        User user = new User();
-
-        user.setId(userDTO.getId());
-        user.setName(userDTO.getName());
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setAddress(userDTO.getAddress());
-        user.setPhone(userDTO.getPhone());
-
-        return user;
+        return roles;
     }
 
-    public User userInputToUser(UserInputDTO userInputDTO) {
-        if (userInputDTO == null) {
-            return null;
+    @Named("encryptPassword")
+    default String mapPassword(String password) {
+        return new BCryptPasswordEncoder().encode(password);
+    }
+
+    default String[] mapRolesToString(Set<Role> roles) {
+        if (roles == null || roles.isEmpty()) {
+            return new String[0];
         }
 
-        User user = new User();
-
-        user.setUsername(userInputDTO.getUsername());
-        user.setEmail(userInputDTO.getEmail());
-        user.setPassword(this.encoder.encode(userInputDTO.getPassword()));
-
-        user.setName(userInputDTO.getName());
-        user.setAddress(userInputDTO.getAddress());
-        user.setPhone(userInputDTO.getPhone());
-
-        user.setEnabled(true);
-        user.setAccountNoExpired(true);
-        user.setCredentialsNoExpired(true);
-        user.setAccountNoLocked(true);
-
-        return user;
+        return roles.stream()
+                .map(Role::getName)
+                .sorted()
+                .toArray(String[]::new);
     }
 }

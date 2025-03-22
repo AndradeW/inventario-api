@@ -26,6 +26,11 @@ public class JwtUtil {
     private String privateKey;
     @Value("${security.jwt.key.generator}")
     private String userGenerator;
+    @Value("${security.jwt.expiration-time}")
+    private long expirationTime;
+
+    public JwtUtil() {
+    }
 
     public String createToken(Authentication authentication) {
 
@@ -43,7 +48,7 @@ public class JwtUtil {
                 .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(new Date().getTime() + TimeUnit.MINUTES.toMillis(30)))
+                .withExpiresAt(new Date(new Date().getTime() + TimeUnit.SECONDS.toMillis(this.expirationTime)))
                 .withJWTId(UUID.randomUUID().toString())
                 .withNotBefore(new Date(System.currentTimeMillis()))
                 .sign(algorithm);

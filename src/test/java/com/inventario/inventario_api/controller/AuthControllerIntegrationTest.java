@@ -223,7 +223,26 @@ public class AuthControllerIntegrationTest {
     @Test
     public void testRegisterUser_MissingFields() {
         // Given
-        UserInputDTO newUser = this.createUser(TEST_USERNAME, null, null, TEST_ADMIN_ROLE); //TODO revisar si se puede enviar strings vacios
+        UserInputDTO newUser = this.createUser(TEST_USERNAME, null, null, TEST_ADMIN_ROLE);
+
+        // When
+        ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        ErrorResponse apiError = response.getBody();
+        assertNotNull(apiError);
+        assertEquals("Validations error", apiError.getMessage());
+        assertTrue(apiError.getDetails().containsKey("email"));
+        assertEquals("El correo electrónico no puede estar vacío", apiError.getDetails().get("email"));
+        assertTrue(apiError.getDetails().containsKey("password"));
+        assertEquals("La contraseña no puede estar vacía", apiError.getDetails().get("password"));
+    }
+
+    @Test
+    public void testRegisterUser_EmptyFields() {
+        // Given
+        UserInputDTO newUser = this.createUser("", "", "", TEST_ADMIN_ROLE);
 
         // When
         ResponseEntity<ErrorResponse> response = this.restTemplate.postForEntity(REGISTER_URL, newUser, ErrorResponse.class);

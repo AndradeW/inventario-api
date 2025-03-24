@@ -73,12 +73,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         UserDTO responseBody = response.getBody();
         assertNotNull(responseBody);
-        assertEquals(newUser.getName(), responseBody.getName());
-        assertEquals(newUser.getUsername(), responseBody.getUsername());
-        assertEquals(newUser.getEmail(), responseBody.getEmail());
-        assertEquals(ROLE_CUSTOMER, responseBody.getRole()[0]);
-        assertEquals(newUser.getAddress(), responseBody.getAddress());
-        assertEquals(newUser.getPhone(), responseBody.getPhone());
+        assertEquals(newUser.getName(), responseBody.name());
+        assertEquals(newUser.getUsername(), responseBody.username());
+        assertEquals(newUser.getEmail(), responseBody.email());
+        assertEquals(ROLE_CUSTOMER, responseBody.role()[0]);
+        assertEquals(newUser.getAddress(), responseBody.address());
+        assertEquals(newUser.getPhone(), responseBody.phone());
     }
 
     @Test
@@ -93,12 +93,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         UserDTO responseBody = response.getBody();
         assertNotNull(responseBody);
-        assertEquals(newUser.getName(), responseBody.getName());
-        assertEquals(newUser.getUsername(), responseBody.getUsername());
-        assertEquals(newUser.getEmail(), responseBody.getEmail());
-        assertArrayEquals(newUser.getRole(), responseBody.getRole());
-        assertEquals(newUser.getAddress(), responseBody.getAddress());
-        assertEquals(newUser.getPhone(), responseBody.getPhone());
+        assertEquals(newUser.getName(), responseBody.name());
+        assertEquals(newUser.getUsername(), responseBody.username());
+        assertEquals(newUser.getEmail(), responseBody.email());
+        assertArrayEquals(newUser.getRole(), responseBody.role());
+        assertEquals(newUser.getAddress(), responseBody.address());
+        assertEquals(newUser.getPhone(), responseBody.phone());
     }
 
     @Test
@@ -113,12 +113,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         UserDTO responseBody = response.getBody();
         assertNotNull(responseBody);
-        assertEquals(newUser.getName(), responseBody.getName());
-        assertEquals(newUser.getUsername(), responseBody.getUsername());
-        assertEquals(newUser.getEmail(), responseBody.getEmail());
-        assertArrayEquals(newUser.getRole(), responseBody.getRole());
-        assertEquals(newUser.getAddress(), responseBody.getAddress());
-        assertEquals(newUser.getPhone(), responseBody.getPhone());
+        assertEquals(newUser.getName(), responseBody.name());
+        assertEquals(newUser.getUsername(), responseBody.username());
+        assertEquals(newUser.getEmail(), responseBody.email());
+        assertArrayEquals(newUser.getRole(), responseBody.role());
+        assertEquals(newUser.getAddress(), responseBody.address());
+        assertEquals(newUser.getPhone(), responseBody.phone());
     }
 
     @Test
@@ -440,7 +440,6 @@ public class AuthControllerIntegrationTest {
     }
 
 
-
     @Test
     public void testAccessProtectedRouteWithInvalidJWT() {
         // Given
@@ -517,7 +516,7 @@ public class AuthControllerIntegrationTest {
                 .build();
     }
 
-    private void createTestUserOk(){
+    private void createTestUserOk() {
         UserInputDTO newUser = this.createUser(TEST_USERNAME, TEST_EMAIL, TEST_PASSWORD, TEST_ADMIN_ROLE);
 
         ResponseEntity<UserDTO> userCreateResponse = this.restTemplate.postForEntity(REGISTER_URL, newUser, UserDTO.class);

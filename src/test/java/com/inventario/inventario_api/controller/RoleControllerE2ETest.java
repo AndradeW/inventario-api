@@ -75,11 +75,10 @@ public class RoleControllerE2ETest {
         assertNotNull(updatedRole);
         assertEquals(TEST_ROLE, updatedRole.getName());
         assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.getDescription());
-//        assertArrayEquals(newRole.getPermissionsList(), updatedRole.getPermissionsList().stream()
-//                .map(Permission::getName)
-//                .toArray(String[]::new)); //TODO revisar si se retorna un DTO o un Array de String
+        assertArrayEquals(newRole.permissions(), updatedRole.getPermissions().stream()
+                .map(Permission::getName)
+                .toArray(String[]::new)); //TODO revisar si se retorna un DTO o un Array de String
     }
-
 
     @Test
     public void testCreateRoleRepeated() {
@@ -101,11 +100,10 @@ public class RoleControllerE2ETest {
         assertEquals("Role with name ADMIN already exists", apiError.getDetails().get("Error"));
     }
 
-/*
     @Test
     public void testUpdateRoleOk() {
         // Given
-        Role newRole = Role.builder()
+        RoleDTO newRole = RoleDTO.builder()
                 .name(TEST_ROLE)
                 .description(TEST_DESCRIPTION_ROLE)
                 .build();
@@ -121,12 +119,11 @@ public class RoleControllerE2ETest {
         assertEquals(HttpStatus.OK, updatedRoleResponse.getStatusCode());
         Role roleResponseBody = updatedRoleResponse.getBody();
         assertNotNull(roleResponseBody);
-        assertEquals(newRole.getId(), roleResponseBody.getId());
-        assertEquals(newRole.getName(), roleResponseBody.getName());
-        assertEquals(newRole.getDescription(), roleResponseBody.getDescription());
-        assertFalse(roleResponseBody.getPermissionsList().isEmpty());
+        assertEquals(1, roleResponseBody.getId());
+        assertEquals(newRole.name(), roleResponseBody.getName());
+        assertEquals(newRole.description(), roleResponseBody.getDescription());
+        assertFalse(roleResponseBody.getPermissions().isEmpty());
     }
-*/
 
     @Test
     public void testUpdateRoleNotFound() {

@@ -38,7 +38,7 @@ public interface UserMapper {
 
         for (String roleName : role) {
             Role userRole = new Role();
-            userRole.setName(roleName);
+            userRole.setName(roleName.toUpperCase());
             roles.add(userRole);
         }
 

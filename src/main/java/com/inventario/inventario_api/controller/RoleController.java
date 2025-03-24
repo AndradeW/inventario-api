@@ -3,6 +3,8 @@ package com.inventario.inventario_api.controller;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +18,8 @@ public class RoleController {
     private RoleService roleService;
 
     @PostMapping
-    public Role createRole(@RequestBody Role role) {
-        return this.roleService.createRole(role);
+    public ResponseEntity<Role> createRole(@RequestBody Role role) {
+        return new ResponseEntity<>(this.roleService.createRole(role), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -36,23 +38,19 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
-    public Role updateRole(@PathVariable Long id, @RequestBody Role role) {
-        return this.roleService.updateRole(id, role);
+    public ResponseEntity<Role> updateRole(@PathVariable Long id, @RequestBody Role role) {
+        return new ResponseEntity<>(this.roleService.updateRole(id, role), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRole(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
         this.roleService.deleteRole(id);
-    }
-
-    @PostMapping("/{roleId}/permissions")
-    public Role addPermissionsToRole(@PathVariable Long roleId, @RequestBody List<Long> permissionIds) {
-        return this.roleService.addPermissionsToRole(roleId, permissionIds);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PostMapping("/{roleName}/permissions")
-    public Role addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody List<String> permissionNames) {
-        return this.roleService.addPermissionsToRoleByName(roleName, permissionNames);
+    public ResponseEntity<Role> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody List<String> permissionNames) {
+        return new ResponseEntity<>(this.roleService.addPermissionsToRoleByName(roleName, permissionNames), HttpStatus.OK);
     }
 }
 

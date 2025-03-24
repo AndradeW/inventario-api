@@ -4,6 +4,7 @@ import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.repository.PermissionRepository;
 import com.inventario.inventario_api.repository.RoleRepository;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,11 @@ public class RoleService {
     private PermissionRepository permissionRepository;
 
     public Role createRole(Role role) {
+        Optional<Role> roleOptional = this.roleRepository.findByName(role.getName());
+        if (roleOptional.isPresent()) {
+            throw new EntityExistsException("Role with name " + role.getName() + " ya existe");
+        }
+
         return this.roleRepository.save(role);
     }
 
@@ -40,14 +46,16 @@ public class RoleService {
     @Transactional
     public Role updateRole(Long id, Role updatedRole) {
         Optional<Role> roleOptional = this.roleRepository.findById(id);
-        if (roleOptional.isPresent()) {
-            Role role = roleOptional.get();
-            role.setName(updatedRole.getName());
-            role.setDescription(updatedRole.getDescription());
-            role.setPermissionsList(updatedRole.getPermissionsList());
-            return this.roleRepository.save(role);
+        if (roleOptional.isEmpty()) {
+            throw new EntityNotFoundException("Role with id " + id + " not found");
         }
-        return null;
+
+        Role role = roleOptional.get();
+        role.setName(updatedRole.getName());
+        role.setDescription(updatedRole.getDescription());
+        //role.setPermissionsList(updatedRole.getPermissionsList());
+
+        return this.roleRepository.save(role);
     }
 
     @Transactional

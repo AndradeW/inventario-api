@@ -32,6 +32,7 @@ public class AuthControllerIntegrationTest {
     private static final String TEST_USERNAME = "testuser";
     private static final String TEST_EMAIL = "testuser@email.com";
     private static final String TEST_PASSWORD = "password123";
+
     private static final String[] TEST_ADMIN_ROLE = {ROLE_ADMIN};
     private static final String[] TEST_CUSTOMER_ROLE = {ROLE_CUSTOMER};
 

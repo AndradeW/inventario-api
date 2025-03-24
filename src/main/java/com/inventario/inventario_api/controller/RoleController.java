@@ -1,5 +1,7 @@
 package com.inventario.inventario_api.controller;
 
+import com.inventario.inventario_api.DTO.Mapper.RoleMapper;
+import com.inventario.inventario_api.DTO.RoleDTO;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +16,18 @@ import java.util.Optional;
 @RequestMapping("/roles")
 public class RoleController {
 
+    private final RoleService roleService;
+    private final RoleMapper roleMapper;
+
     @Autowired
-    private RoleService roleService;
+    public RoleController(RoleService roleService, RoleMapper roleMapper) {
+        this.roleService = roleService;
+        this.roleMapper = roleMapper;
+    }
 
     @PostMapping
-    public ResponseEntity<Role> createRole(@RequestBody Role role) {
+    public ResponseEntity<Role> createRole(@RequestBody RoleDTO roleDTO) {
+        Role role = this.roleMapper.roleDTOToRole(roleDTO);
         return new ResponseEntity<>(this.roleService.createRole(role), HttpStatus.CREATED);
     }
 

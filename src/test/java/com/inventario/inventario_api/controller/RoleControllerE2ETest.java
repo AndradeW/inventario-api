@@ -46,7 +46,7 @@ public class RoleControllerE2ETest {
         Permission permission = Permission.builder().name("READ").build();
         this.permissionRepository.save(permission);
 
-        Role role = Role.builder().name(ROLE_ADMIN).description("Admin Role").permissionsList(setOf(permission)).build();
+        Role role = Role.builder().name(ROLE_ADMIN).description("Admin Role").permissions(setOf(permission)).build();
         this.roleRepository.save(role);
     }
 
@@ -182,7 +182,7 @@ public class RoleControllerE2ETest {
         assertNotNull(updatedRole);
         assertEquals(TEST_ROLE, updatedRole.getName());
         assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.getDescription());
-        assertArrayEquals(permission, updatedRole.getPermissionsList().stream()
+        assertArrayEquals(permission, updatedRole.getPermissions().stream()
                 .map(Permission::getName)
                 .toArray(String[]::new)); //TODO revisar si se retorna un DTO o un Array de String
     }

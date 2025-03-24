@@ -29,5 +29,5 @@ public class Role {
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(name = "roles_permissions", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<Permission> permissionsList = new HashSet<>();
+    private Set<Permission> permissions = new HashSet<>();
 }

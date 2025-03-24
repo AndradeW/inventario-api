@@ -70,7 +70,7 @@ public class RoleService {
             Role role = roleOptional.get();
             for (Long permissionId : permissionIds) {
                 Optional<Permission> permissionOptional = this.permissionRepository.findById(permissionId);
-                permissionOptional.ifPresent(permission -> role.getPermissionsList().add(permission));
+                permissionOptional.ifPresent(permission -> role.getPermissions().add(permission));
             }
             return this.roleRepository.save(role);
         }
@@ -91,7 +91,7 @@ public class RoleService {
             Optional<Permission> permissionOptional = this.permissionRepository.findByName(permissionName);
             if (permissionOptional.isPresent()) {
                 Permission permission = permissionOptional.get();
-                role.getPermissionsList().add(permission);
+                role.getPermissions().add(permission);
             } else {
                 throw new EntityNotFoundException("Permission with name " + permissionName + " not found");
             }

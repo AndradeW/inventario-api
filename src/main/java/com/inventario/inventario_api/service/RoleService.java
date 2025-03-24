@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class RoleService {
@@ -22,11 +24,27 @@ public class RoleService {
     @Autowired
     private PermissionRepository permissionRepository;
 
+    @Transactional
     public Role createRole(Role role) {
-        Optional<Role> roleOptional = this.roleRepository.findByName(role.getName());
-        if (roleOptional.isPresent()) {
-            throw new EntityExistsException("Role with name " + role.getName() + " ya existe");
+        if (this.roleRepository.existsRoleByName(role.getName())) {
+            throw new EntityExistsException("Role with name " + role.getName() + " already exists");
         }
+
+        Set<Permission> assignedPermissions = new HashSet<>();
+        Set<String> missingPermissions = new HashSet<>();
+
+        for (Permission permission : role.getPermissions()) {
+            this.permissionRepository.findByName(permission.getName())
+                    .ifPresentOrElse(
+                            assignedPermissions::add,
+                            () -> missingPermissions.add(permission.getName()));
+        }
+
+        if (!missingPermissions.isEmpty()) {
+            throw new EntityNotFoundException("Permissions not found: " + String.join(", ", missingPermissions));
+        }
+
+        role.setPermissions(assignedPermissions);
 
         return this.roleRepository.save(role);
     }

@@ -1,5 +1,6 @@
 package com.inventario.inventario_api.controller;
 
+import com.inventario.inventario_api.DTO.RoleDTO;
 import com.inventario.inventario_api.config.TestSecurityConfig;
 import com.inventario.inventario_api.exceptions.ErrorResponse;
 import com.inventario.inventario_api.model.Permission;
@@ -55,14 +56,14 @@ public class RoleControllerE2ETest {
         this.roleRepository.deleteAll();
         this.permissionRepository.deleteAll();
     }
-/*
+
     @Test
     public void testCreateRoleWithRoleOk() {
         // Given
-        Role newRole = Role.builder()
+        RoleDTO newRole = RoleDTO.builder()
                 .name(TEST_ROLE)
                 .description(TEST_DESCRIPTION_ROLE)
-                .permissionsList(setOf(Permission.builder().name("READ").build()))
+                .permissions(new String[]{"READ"})
                 .build();
 
         // When
@@ -78,12 +79,12 @@ public class RoleControllerE2ETest {
 //                .map(Permission::getName)
 //                .toArray(String[]::new)); //TODO revisar si se retorna un DTO o un Array de String
     }
-*/
+
 
     @Test
     public void testCreateRoleRepeated() {
         // Given
-        Role newRole = Role.builder()
+        RoleDTO newRole = RoleDTO.builder()
                 .name("ADMIN")
                 .description("Admin Role")
                 .build();
@@ -97,7 +98,7 @@ public class RoleControllerE2ETest {
         assertNotNull(apiError);
         assertEquals("El campo ya existe en la DB", apiError.getMessage());
         assertTrue(apiError.getDetails().containsKey("Error"));
-        assertEquals("Role with name ADMIN ya existe", apiError.getDetails().get("Error"));
+        assertEquals("Role with name ADMIN already exists", apiError.getDetails().get("Error"));
     }
 
 /*
@@ -155,7 +156,7 @@ public class RoleControllerE2ETest {
     @Test
     public void testCreateRoleAndAssignPermissions() {
         // Given
-        Role newRole = Role.builder()
+        RoleDTO newRole = RoleDTO.builder()
                 .name(TEST_ROLE)
                 .description(TEST_DESCRIPTION_ROLE)
                 .build();

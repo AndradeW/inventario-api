@@ -62,10 +62,10 @@ public class RoleService {
     }
 
     @Transactional
-    public Role updateRole(Long id, Role updatedRole) {
-        Optional<Role> roleOptional = this.roleRepository.findById(id);
+    public Role updateRole(String name, Role updatedRole) {
+        Optional<Role> roleOptional = this.roleRepository.findByName(name);
         if (roleOptional.isEmpty()) {
-            throw new EntityNotFoundException("Role with id " + id + " not found");
+            throw new EntityNotFoundException("Role with name " + name + " not found");
         }
 
         Role role = roleOptional.get();

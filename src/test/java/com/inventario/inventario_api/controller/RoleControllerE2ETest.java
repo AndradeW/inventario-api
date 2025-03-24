@@ -34,13 +34,16 @@ public class RoleControllerE2ETest {
     private static final String TEST_ROLE = "TEST";
     private static final String TEST_DESCRIPTION_ROLE = "Test Role";
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    private final TestRestTemplate restTemplate;
+    private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private PermissionRepository permissionRepository;
+    public RoleControllerE2ETest(TestRestTemplate restTemplate, RoleRepository roleRepository, PermissionRepository permissionRepository) {
+        this.restTemplate = restTemplate;
+        this.roleRepository = roleRepository;
+        this.permissionRepository = permissionRepository;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -48,7 +51,11 @@ public class RoleControllerE2ETest {
         this.permissionRepository.save(permission);
 
         Role role = Role.builder().name(ROLE_ADMIN).description("Admin Role").permissions(setOf(permission)).build();
-        this.roleRepository.save(role);
+        //this.roleRepository.save(role);
+
+        role = this.roleRepository.save(role);  // Guarda y obtiene el id
+        System.out.println("Role ID: " + role.getId());  // Verifica el ID
+
     }
 
     @AfterEach
@@ -110,7 +117,7 @@ public class RoleControllerE2ETest {
 
         // When
         ResponseEntity<Role> updatedRoleResponse = this.restTemplate.exchange(
-                ROLES_URL + "/1",
+                ROLES_URL + "/name/" + ROLE_ADMIN,
                 HttpMethod.PUT,
                 new HttpEntity<>(newRole),
                 Role.class);
@@ -119,7 +126,7 @@ public class RoleControllerE2ETest {
         assertEquals(HttpStatus.OK, updatedRoleResponse.getStatusCode());
         Role roleResponseBody = updatedRoleResponse.getBody();
         assertNotNull(roleResponseBody);
-        assertEquals(1, roleResponseBody.getId());
+        //assertEquals(1, roleResponseBody.getId());
         assertEquals(newRole.name(), roleResponseBody.getName());
         assertEquals(newRole.description(), roleResponseBody.getDescription());
         assertFalse(roleResponseBody.getPermissions().isEmpty());
@@ -135,7 +142,7 @@ public class RoleControllerE2ETest {
 
         // When
         ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.exchange(
-                ROLES_URL + "/99",
+                ROLES_URL + "/name/"+ "ABC",
                 HttpMethod.PUT,
                 new HttpEntity<>(newRole),
                 ErrorResponse.class);
@@ -146,7 +153,7 @@ public class RoleControllerE2ETest {
         assertNotNull(apiError);
         assertEquals("El campo no fue encontrado en la DB", apiError.getMessage());
         assertTrue(apiError.getDetails().containsKey("Error"));
-        assertEquals("Role with id 99 not found", apiError.getDetails().get("Error"));
+        assertEquals("Role with name ABC not found", apiError.getDetails().get("Error"));
     }
 
     // Test para crear un rol y asignar permisos

@@ -7,6 +7,7 @@ import com.inventario.inventario_api.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,9 +47,9 @@ public class RoleController {
         return this.roleService.getRoleByName(name);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable Long id, @RequestBody Role role) {
-        return new ResponseEntity<>(this.roleService.updateRole(id, role), HttpStatus.OK);
+    @PutMapping("/name/{name}")
+    public ResponseEntity<Role> updateRole(@PathVariable String name, @Validated @RequestBody Role role) {
+        return new ResponseEntity<>(this.roleService.updateRole(name, role), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

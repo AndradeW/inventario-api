@@ -78,6 +78,11 @@ public class RoleService {
 
     @Transactional
     public void deleteRole(Long id) {
+        Optional<Role> roleOptional = this.roleRepository.findById(id);
+        if (roleOptional.isEmpty()) {
+            throw new EntityNotFoundException("Role with id " + id + " not found");
+        }
+
         this.roleRepository.deleteById(id);
     }
 

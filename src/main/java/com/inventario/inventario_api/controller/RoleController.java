@@ -83,7 +83,7 @@ public class RoleController {
     @PostMapping("/{roleName}/permissions")
     public ResponseEntity<RoleDTO> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody Set<PermissionDTO> permissionNames) {
 
-        Set<Permission> permissionSet = this.permissionMapper.permissionDTOListToPermissionList(permissionNames);
+        Set<Permission> permissionSet = this.permissionMapper.toPermissionList(permissionNames);
         Role updatedRole = this.roleService.addPermissionsToRoleByName(roleName, permissionSet);
         RoleDTO updatedRoleDTO = this.roleMapper.toRoleDTO(updatedRole);
 

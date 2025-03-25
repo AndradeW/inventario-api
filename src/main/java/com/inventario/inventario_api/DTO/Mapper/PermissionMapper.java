@@ -9,9 +9,9 @@ import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {
 
-    Permission permissionDTOToPermission(PermissionDTO permissionDTO);
+    Permission toPermission(PermissionDTO permissionDTO);
 
-    Set<Permission> permissionDTOListToPermissionList(Set<PermissionDTO> permissionDTOList);
+    Set<Permission> toPermissionList(Set<PermissionDTO> permissionDTOList);
     Set<PermissionDTO> permissionListToPermissionDTOList(Set<Permission> permissionList);
 
     default String toUpperCase(String name) {

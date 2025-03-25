@@ -26,7 +26,7 @@ public class PermissionController {
 
     @PostMapping
     public ResponseEntity<Permission> createPermission(@RequestBody PermissionDTO permissionDTO) {
-        Permission permission = this.permissionMapper.permissionDTOToPermission(permissionDTO);
+        Permission permission = this.permissionMapper.toPermission(permissionDTO);
         return ResponseEntity.ok((this.permissionService.createPermission(permission)));
     }
 
@@ -56,7 +56,7 @@ public class PermissionController {
     @PutMapping("/{id}")
     public ResponseEntity<Permission> updatePermission(@PathVariable Long id, @RequestBody PermissionDTO permissionDTO) {
 
-        Permission permission = this.permissionMapper.permissionDTOToPermission(permissionDTO);
+        Permission permission = this.permissionMapper.toPermission(permissionDTO);
         return ResponseEntity.ok(this.permissionService.updatePermission(id, permission));
     }
 

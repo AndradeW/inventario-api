@@ -18,4 +18,5 @@ public class Permission {
 
     @Column(name = "role_name", nullable = false, unique = true, updatable = false)
     private String name;
+
 }

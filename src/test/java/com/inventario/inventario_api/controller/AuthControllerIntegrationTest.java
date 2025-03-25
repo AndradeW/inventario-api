@@ -47,11 +47,11 @@ public class AuthControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         Role adminRole = new Role();
-        adminRole.setName("ADMIN");
+        adminRole.setName(ROLE_ADMIN);
         this.roleRepository.save(adminRole);
 
         Role userRole = new Role();
-        userRole.setName("CUSTOMER");
+        userRole.setName(ROLE_CUSTOMER);
         this.roleRepository.save(userRole);
     }
 

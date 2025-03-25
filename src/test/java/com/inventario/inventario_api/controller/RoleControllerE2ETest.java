@@ -91,7 +91,7 @@ public class RoleControllerE2ETest {
     public void testCreateRoleRepeated() {
         // Given
         RoleDTO newRole = RoleDTO.builder()
-                .name("ADMIN")
+                .name(ROLE_ADMIN)
                 .description("Admin Role")
                 .build();
 
@@ -136,7 +136,7 @@ public class RoleControllerE2ETest {
     public void testUpdateRoleNotFound() {
         // Given
         Role newRole = Role.builder()
-                .name("ADMIN")
+                .name(ROLE_ADMIN)
                 .description("Admin Role")
                 .build();
 

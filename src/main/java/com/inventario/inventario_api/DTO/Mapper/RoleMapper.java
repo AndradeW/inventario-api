@@ -1,5 +1,6 @@
 package com.inventario.inventario_api.DTO.Mapper;
 
+import com.inventario.inventario_api.DTO.PermissionDTO;
 import com.inventario.inventario_api.DTO.RoleDTO;
 import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
@@ -12,23 +13,43 @@ import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "permissions", expression = "java(mapPermissionStringToSet(roleDTO.permissions()))")
-    Role roleDTOToRole(RoleDTO roleDTO);
+    @Mapping(target = "permissions", expression = "java(mapPermissionDTOSetToPermissionSet(roleDTO.permissions()))")
+    Role toRole(RoleDTO roleDTO);
 
-    default Set<Permission> mapPermissionStringToSet(String[] permissionStringList) {
+    default Set<Permission> mapPermissionDTOSetToPermissionSet(Set<PermissionDTO> permissionList) {
         Set<Permission> permissionSet = new HashSet<>();
 
-        if (permissionStringList == null || permissionStringList.length == 0) {
+        if (permissionList == null || permissionList.size() == 0) {
             return permissionSet;
         }
 
-        for (String permission : permissionStringList) {
+        for (PermissionDTO permission : permissionList) {
             Permission permissions = new Permission();
-            permissions.setName(permission.toUpperCase());
+            permissions.setName(permission.name().toUpperCase());
             permissionSet.add(permissions);
         }
 
         return permissionSet;
     }
+
+    @Mapping(target = "permissions", expression = "java(mapPermissionToPermissionDTOSet(createdRole.getPermissions()))")
+    RoleDTO toRoleDTO(Role createdRole);
+
+    default Set<PermissionDTO> mapPermissionToPermissionDTOSet(Set<Permission> permissionSet) {
+
+        Set<PermissionDTO> permissionDTOSet = new HashSet<>();
+
+        if (permissionSet == null || permissionSet.size() == 0) {
+            return permissionDTOSet;
+        }
+
+        for (Permission permission : permissionSet) {
+            PermissionDTO permissionDTO = PermissionDTO.builder().name(permission.getName()).build();
+            permissionDTOSet.add(permissionDTO);
+        }
+
+        return permissionDTOSet;
+    }
+
 
 }

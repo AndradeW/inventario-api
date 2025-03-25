@@ -1,5 +1,6 @@
 package com.inventario.inventario_api.controller;
 
+import com.inventario.inventario_api.DTO.PermissionDTO;
 import com.inventario.inventario_api.DTO.RoleDTO;
 import com.inventario.inventario_api.config.TestSecurityConfig;
 import com.inventario.inventario_api.exceptions.ErrorResponse;
@@ -19,6 +20,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.List;
+import java.util.Set;
 
 import static com.inventario.inventario_api.model.Role.ROLE_ADMIN;
 import static org.hibernate.internal.util.collections.CollectionHelper.setOf;
@@ -61,26 +65,24 @@ public class RoleControllerE2ETest {
     }
 
     @Test
-    public void testCreateRoleWithRoleOk() {
+    public void testCreateRoleWithPermissionOk() {
         // Given
         RoleDTO newRole = RoleDTO.builder()
                 .name(TEST_ROLE)
                 .description(TEST_DESCRIPTION_ROLE)
-                .permissions(new String[]{"READ"})
+                .permissions(setOf(PermissionDTO.builder().name("READ").build()))
                 .build();
 
         // When
-        ResponseEntity<Role> response = this.restTemplate.postForEntity(ROLES_URL, newRole, Role.class);
+        ResponseEntity<RoleDTO> response = this.restTemplate.postForEntity(ROLES_URL, newRole, RoleDTO.class);
 
         // Then
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Role updatedRole = response.getBody();
+        RoleDTO updatedRole = response.getBody();
         assertNotNull(updatedRole);
-        assertEquals(TEST_ROLE, updatedRole.getName());
-        assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.getDescription());
-        assertArrayEquals(newRole.permissions(), updatedRole.getPermissions().stream()
-                .map(Permission::getName)
-                .toArray(String[]::new)); //TODO revisar si se retorna un DTO o un Array de String
+        assertEquals(TEST_ROLE, updatedRole.name());
+        assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.description());
+        assertEquals(newRole.permissions(), updatedRole.permissions());
     }
 
     @Test
@@ -138,7 +140,7 @@ public class RoleControllerE2ETest {
 
         // When
         ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.exchange(
-                ROLES_URL + "/name/"+ "ABC",
+                ROLES_URL + "/name/" + "ABC",
                 HttpMethod.PUT,
                 new HttpEntity<>(newRole),
                 ErrorResponse.class);
@@ -172,30 +174,28 @@ public class RoleControllerE2ETest {
         assertEquals(TEST_DESCRIPTION_ROLE, role.getDescription());
 
         // Given
-        String[] permission = new String[]{"READ"};
+        Set<PermissionDTO> permission = Set.of(PermissionDTO.builder().name("READ").build());
 
         // When
-        ResponseEntity<Role> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL+"/TEST/permissions", permission, Role.class);
+        ResponseEntity<RoleDTO> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL + "/TEST/permissions", permission, RoleDTO.class);
 
         // Then
         assertEquals(HttpStatus.OK, updatedRoleResponse.getStatusCode());
-        Role updatedRole = updatedRoleResponse.getBody();
+        RoleDTO updatedRole = updatedRoleResponse.getBody();
         assertNotNull(updatedRole);
-        assertEquals(TEST_ROLE, updatedRole.getName());
-        assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.getDescription());
-        assertArrayEquals(permission, updatedRole.getPermissions().stream()
-                .map(Permission::getName)
-                .toArray(String[]::new)); //TODO revisar si se retorna un DTO o un Array de String
+        assertEquals(TEST_ROLE, updatedRole.name());
+        assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.description());
+        assertEquals(permission, updatedRole.permissions()); //TODO revisar si se retorna un DTO o un Array de String
     }
 
     // Test para manejar rol no encontrado
     @Test
     public void testRoleNotFound() {
         // Given
-        String[] permission = new String[]{"READ"};
+        List<PermissionDTO> permission = List.of(PermissionDTO.builder().name("READ").build());
 
         // When
-        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL+"/NON_EXISTING_ROLE/permissions", permission, ErrorResponse.class);
+        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL + "/NON_EXISTING_ROLE/permissions", permission, ErrorResponse.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, updatedRoleResponse.getStatusCode());
@@ -210,10 +210,10 @@ public class RoleControllerE2ETest {
     @Test
     public void testPermissionNotFound() {
         // Given
-        String[] permission = new String[]{"NON_EXISTING_PERMISSION"};
+        List<PermissionDTO> permission = List.of(PermissionDTO.builder().name("NON_EXISTING_PERMISSION").build());
 
         // When
-        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL+"/ADMIN/permissions", permission, ErrorResponse.class);
+        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL + "/ADMIN/permissions", permission, ErrorResponse.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, updatedRoleResponse.getStatusCode());

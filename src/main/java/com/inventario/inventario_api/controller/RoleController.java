@@ -1,7 +1,10 @@
 package com.inventario.inventario_api.controller;
 
+import com.inventario.inventario_api.DTO.Mapper.PermissionMapper;
 import com.inventario.inventario_api.DTO.Mapper.RoleMapper;
+import com.inventario.inventario_api.DTO.PermissionDTO;
 import com.inventario.inventario_api.DTO.RoleDTO;
+import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
 import com.inventario.inventario_api.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/roles")
@@ -19,17 +23,21 @@ public class RoleController {
 
     private final RoleService roleService;
     private final RoleMapper roleMapper;
+    private final PermissionMapper permissionMapper;
 
     @Autowired
-    public RoleController(RoleService roleService, RoleMapper roleMapper) {
+    public RoleController(RoleService roleService, RoleMapper roleMapper, PermissionMapper permissionMapper) {
         this.roleService = roleService;
         this.roleMapper = roleMapper;
+        this.permissionMapper = permissionMapper;
     }
 
     @PostMapping
-    public ResponseEntity<Role> createRole(@RequestBody RoleDTO roleDTO) {
-        Role role = this.roleMapper.roleDTOToRole(roleDTO);
-        return new ResponseEntity<>(this.roleService.createRole(role), HttpStatus.CREATED);
+    public ResponseEntity<RoleDTO> createRole(@RequestBody RoleDTO roleDTO) {
+        Role role = this.roleMapper.toRole(roleDTO);
+        Role createdRole = this.roleService.createRole(role);
+        RoleDTO createdRoleDTO = this.roleMapper.toRoleDTO(createdRole);
+        return new ResponseEntity<>(createdRoleDTO, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -58,7 +66,7 @@ public class RoleController {
 
     @PutMapping("/name/{name}")
     public ResponseEntity<Role> updateRole(@PathVariable String name, @Validated @RequestBody RoleDTO roleDTO) {
-        Role role = this.roleMapper.roleDTOToRole(roleDTO);
+        Role role = this.roleMapper.toRole(roleDTO);
         return new ResponseEntity<>(this.roleService.updateRole(name, role), HttpStatus.OK);
     }
 
@@ -69,8 +77,10 @@ public class RoleController {
     }
 
     @PostMapping("/{roleName}/permissions")
-    public ResponseEntity<Role> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody List<String> permissionNames) {
-        return new ResponseEntity<>(this.roleService.addPermissionsToRoleByName(roleName, permissionNames), HttpStatus.OK);
+    public ResponseEntity<Role> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody Set<PermissionDTO> permissionNames) {
+        Set<Permission> permissionSet = this.permissionMapper.permissionDTOListToPermissionList(permissionNames);
+
+        return new ResponseEntity<>(this.roleService.addPermissionsToRoleByName(roleName, permissionSet), HttpStatus.OK);
     }
 }
 

@@ -96,7 +96,7 @@ public class RoleService {
     }
 
     @Transactional
-    public Role addPermissionsToRoleByName(String roleName, List<String> permissionNames) {
+    public Role addPermissionsToRoleByName(String roleName, Set<Permission> permissionSet) {
         // Buscar el rol por nombre
         Optional<Role> roleOptional = this.roleRepository.findByName(roleName);
         if (roleOptional.isEmpty()) {
@@ -105,13 +105,12 @@ public class RoleService {
         Role role = roleOptional.get();
 
         // Buscar y agregar los permisos al rol
-        for (String permissionName : permissionNames) {
-            Optional<Permission> permissionOptional = this.permissionRepository.findByName(permissionName);
+        for (Permission permission : permissionSet) {
+            Optional<Permission> permissionOptional = this.permissionRepository.findByName(permission.getName());
             if (permissionOptional.isPresent()) {
-                Permission permission = permissionOptional.get();
-                role.getPermissions().add(permission);
+                role.getPermissions().add(permissionOptional.get());
             } else {
-                throw new EntityNotFoundException("Permission with name " + permissionName + " not found");
+                throw new EntityNotFoundException("Permission with name " + permission.getName() + " not found");
             }
         }
 

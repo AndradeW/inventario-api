@@ -33,22 +33,32 @@ public class RoleController {
     }
 
     @GetMapping
-    public List<Role> getAllRoles() {
-        return this.roleService.getAllRoles();
+    public ResponseEntity<List<Role>> getAllRoles() {
+        List<Role> roles = this.roleService.getAllRoles();
+         return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/{id}")
-    public Optional<Role> getRoleById(@PathVariable Long id) {
-        return this.roleService.getRoleById(id);
+    public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
+
+        Optional<Role> role =  this.roleService.getRoleById(id);
+
+        return role.map(r -> new ResponseEntity<>(r, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/name/{name}")
-    public Optional<Role> getRoleByName(@PathVariable String name) {
-        return this.roleService.getRoleByName(name);
+    public ResponseEntity<Role> getRoleByName(@PathVariable String name) {
+
+        Optional<Role> role = this.roleService.getRoleByName(name);
+
+        return role.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/name/{name}")
-    public ResponseEntity<Role> updateRole(@PathVariable String name, @Validated @RequestBody Role role) {
+    public ResponseEntity<Role> updateRole(@PathVariable String name, @Validated @RequestBody RoleDTO roleDTO) {
+        Role role = this.roleMapper.roleDTOToRole(roleDTO);
         return new ResponseEntity<>(this.roleService.updateRole(name, role), HttpStatus.OK);
     }
 

@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Import(TestSecurityConfig.class)
 public class RoleControllerE2ETest {
 
-    public static final String ROLES_URL = "/roles";
+    public static final String ROLES_URL = "/api/roles";
 
     private static final String TEST_ROLE = "TEST";
     private static final String TEST_DESCRIPTION_ROLE = "Test Role";
@@ -51,11 +51,7 @@ public class RoleControllerE2ETest {
         this.permissionRepository.save(permission);
 
         Role role = Role.builder().name(ROLE_ADMIN).description("Admin Role").permissions(setOf(permission)).build();
-        //this.roleRepository.save(role);
-
-        role = this.roleRepository.save(role);  // Guarda y obtiene el id
-        System.out.println("Role ID: " + role.getId());  // Verifica el ID
-
+        this.roleRepository.save(role);
     }
 
     @AfterEach
@@ -179,7 +175,7 @@ public class RoleControllerE2ETest {
         String[] permission = new String[]{"READ"};
 
         // When
-        ResponseEntity<Role> updatedRoleResponse = this.restTemplate.postForEntity("/roles/TEST/permissions", permission, Role.class);
+        ResponseEntity<Role> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL+"/TEST/permissions", permission, Role.class);
 
         // Then
         assertEquals(HttpStatus.OK, updatedRoleResponse.getStatusCode());
@@ -199,7 +195,7 @@ public class RoleControllerE2ETest {
         String[] permission = new String[]{"READ"};
 
         // When
-        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity("/roles/NON_EXISTING_ROLE/permissions", permission, ErrorResponse.class);
+        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL+"/NON_EXISTING_ROLE/permissions", permission, ErrorResponse.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, updatedRoleResponse.getStatusCode());
@@ -217,7 +213,7 @@ public class RoleControllerE2ETest {
         String[] permission = new String[]{"NON_EXISTING_PERMISSION"};
 
         // When
-        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity("/roles/ADMIN/permissions", permission, ErrorResponse.class);
+        ResponseEntity<ErrorResponse> updatedRoleResponse = this.restTemplate.postForEntity(ROLES_URL+"/ADMIN/permissions", permission, ErrorResponse.class);
 
         // Then
         assertEquals(HttpStatus.NOT_FOUND, updatedRoleResponse.getStatusCode());

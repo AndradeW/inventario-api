@@ -41,33 +41,37 @@ public class RoleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Role>> getAllRoles() {
+    public ResponseEntity<List<RoleDTO>> getAllRoles() {
         List<Role> roles = this.roleService.getAllRoles();
-         return ResponseEntity.ok(roles);
+        return ResponseEntity.ok(this.roleMapper.toRoleDTOSet(roles));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Role> getRoleById(@PathVariable Long id) {
+    public ResponseEntity<RoleDTO> getRoleById(@PathVariable Long id) {
 
-        Optional<Role> role =  this.roleService.getRoleById(id);
+        Optional<Role> role = this.roleService.getRoleById(id);
 
-        return role.map(r -> new ResponseEntity<>(r, HttpStatus.OK))
+        return role.map(r -> new ResponseEntity<>(this.roleMapper.toRoleDTO(r), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<Role> getRoleByName(@PathVariable String name) {
+    public ResponseEntity<RoleDTO> getRoleByName(@PathVariable String name) {
 
         Optional<Role> role = this.roleService.getRoleByName(name);
 
-        return role.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+        return role.map(r -> new ResponseEntity<>(this.roleMapper.toRoleDTO(r), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/name/{name}")
-    public ResponseEntity<Role> updateRole(@PathVariable String name, @Validated @RequestBody RoleDTO roleDTO) {
+    public ResponseEntity<RoleDTO> updateRole(@PathVariable String name, @Validated @RequestBody RoleDTO roleDTO) {
+
         Role role = this.roleMapper.toRole(roleDTO);
-        return new ResponseEntity<>(this.roleService.updateRole(name, role), HttpStatus.OK);
+        Role updatedRole = this.roleService.updateRole(name, role);
+        RoleDTO updatedRoleDTO = this.roleMapper.toRoleDTO(updatedRole);
+
+        return new ResponseEntity<>(updatedRoleDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -77,10 +81,13 @@ public class RoleController {
     }
 
     @PostMapping("/{roleName}/permissions")
-    public ResponseEntity<Role> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody Set<PermissionDTO> permissionNames) {
-        Set<Permission> permissionSet = this.permissionMapper.permissionDTOListToPermissionList(permissionNames);
+    public ResponseEntity<RoleDTO> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody Set<PermissionDTO> permissionNames) {
 
-        return new ResponseEntity<>(this.roleService.addPermissionsToRoleByName(roleName, permissionSet), HttpStatus.OK);
+        Set<Permission> permissionSet = this.permissionMapper.permissionDTOListToPermissionList(permissionNames);
+        Role updatedRole = this.roleService.addPermissionsToRoleByName(roleName, permissionSet);
+        RoleDTO updatedRoleDTO = this.roleMapper.toRoleDTO(updatedRole);
+
+        return new ResponseEntity<>(updatedRoleDTO, HttpStatus.OK);
     }
 }
 

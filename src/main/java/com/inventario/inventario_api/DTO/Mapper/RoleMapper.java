@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = "spring")
@@ -34,6 +35,8 @@ public interface RoleMapper {
 
     @Mapping(target = "permissions", expression = "java(mapPermissionToPermissionDTOSet(createdRole.getPermissions()))")
     RoleDTO toRoleDTO(Role createdRole);
+    List<RoleDTO> toRoleDTOSet(List<Role> createdRoleSet);
+
 
     default Set<PermissionDTO> mapPermissionToPermissionDTOSet(Set<Permission> permissionSet) {
 

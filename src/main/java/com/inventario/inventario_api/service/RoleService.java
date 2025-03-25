@@ -18,11 +18,14 @@ import java.util.Set;
 @Service
 public class RoleService {
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
 
     @Autowired
-    private PermissionRepository permissionRepository;
+    public RoleService(RoleRepository roleRepository, PermissionRepository permissionRepository) {
+        this.roleRepository = roleRepository;
+        this.permissionRepository = permissionRepository;
+    }
 
     @Transactional
     public Role createRole(Role role) {

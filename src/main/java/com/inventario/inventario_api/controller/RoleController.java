@@ -80,6 +80,12 @@ public class RoleController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping("/name/{name}")
+    public ResponseEntity<Void> deleteRoleByName(@PathVariable String name) {
+        this.roleService.deleteRoleByName(name);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PostMapping("/{roleName}/permissions")
     public ResponseEntity<RoleDTO> addPermissionsToRoleByName(@PathVariable String roleName, @RequestBody Set<PermissionDTO> permissionNames) {
 

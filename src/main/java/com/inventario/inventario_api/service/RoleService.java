@@ -81,6 +81,16 @@ public class RoleService {
         this.roleRepository.deleteById(id);
     }
 
+    @Transactional
+    public void deleteRoleByName(String name) {
+        Optional<Role> roleOptional = this.roleRepository.findByName(name);
+        if (roleOptional.isEmpty()) {
+            throw new EntityNotFoundException("Role with name " + name + " not found");
+        }
+        Role role = roleOptional.get();
+        this.roleRepository.delete(role);
+    }
+
     // Agregar permisos a un rol
     public Role addPermissionsToRole(Long roleId, List<Long> permissionIds) {
         Optional<Role> roleOptional = this.roleRepository.findById(roleId);

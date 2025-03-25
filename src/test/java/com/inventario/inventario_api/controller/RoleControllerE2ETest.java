@@ -223,4 +223,35 @@ public class RoleControllerE2ETest {
         assertTrue(apiError.getDetails().containsKey("Error"));
         assertEquals("Permission with name NON_EXISTING_PERMISSION not found", apiError.getDetails().get("Error"));
     }
+
+    @Test
+    public void testRoleDeleteNotFound() {
+        // Given
+        String role = "TEST";
+
+        // When
+        ResponseEntity<ErrorResponse> deletedResponse = this.restTemplate.exchange(ROLES_URL + "/name/" + role, HttpMethod.DELETE, null, ErrorResponse.class);
+
+        // Then
+        assertEquals(HttpStatus.NOT_FOUND, deletedResponse.getStatusCode());
+        ErrorResponse apiError = deletedResponse.getBody();
+        assertNotNull(apiError);
+        assertEquals("El campo no fue encontrado en la DB", apiError.getMessage());
+        assertTrue(apiError.getDetails().containsKey("Error"));
+        assertEquals("Role with name TEST not found", apiError.getDetails().get("Error"));
+    }
+
+    @Test
+    public void testRoleDeleteOk() {
+        // Given
+        String role = ROLE_ADMIN;
+
+        // When
+        ResponseEntity<Void> deletedResponse = this.restTemplate.exchange(ROLES_URL + "/name/" + role, HttpMethod.DELETE, null, Void.class);
+
+        // Then
+        assertEquals(HttpStatus.NO_CONTENT, deletedResponse.getStatusCode());
+        assertNull(deletedResponse.getBody());
+    }
+
 }

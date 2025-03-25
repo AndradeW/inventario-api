@@ -6,5 +6,10 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {
+
     Permission permissionDTOToPermission(PermissionDTO permissionDTO);
+
+    default String toUpperCase(String name) {
+        return name != null ? name.toUpperCase() : null;
+    }
 }

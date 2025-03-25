@@ -1,4 +1,6 @@
 package com.inventario.inventario_api.DTO;
 
-public record PermissionDTO(String name) {
+import jakarta.validation.constraints.NotNull;
+
+public record PermissionDTO(@NotNull String name) {
 }

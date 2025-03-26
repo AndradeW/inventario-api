@@ -24,10 +24,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestSecurityConfig.class)
 class PermissionControllerE2ETest {
-    private final String PERMISSION_URL = "/api/permissions";
 
-    private final String TEST_PERMISSION_READ = "READ";
-    private final String TEST_PERMISSION_TEST = "TEST";
+    private static final String PERMISSION_URL = "/api/permissions";
+
+    private static final String TEST_PERMISSION_READ = "READ";
+    private static final String TEST_PERMISSION_TEST = "TEST";
 
     private final TestRestTemplate restTemplate;
     private final PermissionRepository permissionRepository;

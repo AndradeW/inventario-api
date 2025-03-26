@@ -1,6 +1,5 @@
 package com.inventario.inventario_api.DTO.Mapper;
 
-import com.inventario.inventario_api.DTO.PermissionDTO;
 import com.inventario.inventario_api.DTO.RoleDTO;
 import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
@@ -8,6 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,16 +24,16 @@ public interface RoleMapper {
         return name.toUpperCase();
     }
 
-    default Set<Permission> mapPermissionDTOSetToPermissionSet(Set<PermissionDTO> permissionList) {
+    default Set<Permission> mapPermissionDTOSetToPermissionSet(List<String> permissionList) {
         Set<Permission> permissionSet = new HashSet<>();
 
         if (permissionList == null || permissionList.size() == 0) {
             return permissionSet;
         }
 
-        for (PermissionDTO permission : permissionList) {
+        for (String permission : permissionList) {
             Permission permissions = new Permission();
-            permissions.setName(permission.name().toUpperCase());
+            permissions.setName(permission.toUpperCase());
             permissionSet.add(permissions);
         }
 
@@ -46,16 +46,16 @@ public interface RoleMapper {
     List<RoleDTO> toRoleDTOSet(List<Role> createdRoleSet);
 
 
-    default Set<PermissionDTO> mapPermissionToPermissionDTOSet(Set<Permission> permissionSet) {
+    default List<String> mapPermissionToPermissionDTOSet(Set<Permission> permissionSet) {
 
-        Set<PermissionDTO> permissionDTOSet = new HashSet<>();
+        List<String> permissionDTOSet = new ArrayList<>();
 
         if (permissionSet == null || permissionSet.size() == 0) {
             return permissionDTOSet;
         }
 
         for (Permission permission : permissionSet) {
-            PermissionDTO permissionDTO = PermissionDTO.builder().name(permission.getName()).build();
+            String permissionDTO = permission.getName();
             permissionDTOSet.add(permissionDTO);
         }
 

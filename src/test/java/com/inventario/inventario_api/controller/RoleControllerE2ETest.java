@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.inventario.inventario_api.model.Role.ROLE_ADMIN;
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
 import static org.hibernate.internal.util.collections.CollectionHelper.setOf;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,7 +71,7 @@ public class RoleControllerE2ETest {
         RoleDTO newRole = RoleDTO.builder()
                 .name(TEST_ROLE)
                 .description(TEST_DESCRIPTION_ROLE)
-                .permissions(setOf(PermissionDTO.builder().name("READ").build()))
+                .permissions(listOf("READ"))
                 .build();
 
         // When
@@ -114,20 +115,20 @@ public class RoleControllerE2ETest {
                 .build();
 
         // When
-        ResponseEntity<Role> updatedRoleResponse = this.restTemplate.exchange(
+        ResponseEntity<RoleDTO> updatedRoleResponse = this.restTemplate.exchange(
                 ROLES_URL + "/name/" + ROLE_ADMIN,
                 HttpMethod.PUT,
                 new HttpEntity<>(newRole),
-                Role.class);
+                RoleDTO.class);
 
         // Then
         assertEquals(HttpStatus.OK, updatedRoleResponse.getStatusCode());
-        Role roleResponseBody = updatedRoleResponse.getBody();
+        RoleDTO roleResponseBody = updatedRoleResponse.getBody();
         assertNotNull(roleResponseBody);
         //assertEquals(1, roleResponseBody.getId());
-        assertEquals(newRole.name(), roleResponseBody.getName());
-        assertEquals(newRole.description(), roleResponseBody.getDescription());
-        assertFalse(roleResponseBody.getPermissions().isEmpty());
+        assertEquals(newRole.name(), roleResponseBody.name());
+        assertEquals(newRole.description(), roleResponseBody.description());
+        assertFalse(roleResponseBody.permissions().isEmpty());
     }
 
     @Test
@@ -185,7 +186,7 @@ public class RoleControllerE2ETest {
         assertNotNull(updatedRole);
         assertEquals(TEST_ROLE, updatedRole.name());
         assertEquals(TEST_DESCRIPTION_ROLE, updatedRole.description());
-        assertEquals(permission, updatedRole.permissions()); //TODO revisar si se retorna un DTO o un Array de String
+        assertEquals(permission.stream().map(PermissionDTO::name).toList(), updatedRole.permissions()); //TODO revisar si se retorna un DTO o un Array de String
     }
 
     // Test para manejar rol no encontrado

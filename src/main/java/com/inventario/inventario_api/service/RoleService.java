@@ -99,7 +99,7 @@ public class RoleService {
         this.roleRepository.delete(role);
     }
 
-    // Agregar permisos a un rol
+    // Agregar permisos a un rol by id
     public Role addPermissionsToRole(Long roleId, List<Long> permissionIds) {
         Optional<Role> roleOptional = this.roleRepository.findById(roleId);
         if (roleOptional.isPresent()) {
@@ -115,14 +115,13 @@ public class RoleService {
 
     @Transactional
     public Role addPermissionsToRoleByName(String roleName, Set<Permission> permissionSet) {
-        // Buscar el rol por nombre
+
         Optional<Role> roleOptional = this.roleRepository.findByName(roleName);
         if (roleOptional.isEmpty()) {
             throw new EntityNotFoundException("Role with name " + roleName + " not found");
         }
         Role role = roleOptional.get();
 
-        // Buscar y agregar los permisos al rol
         for (Permission permission : permissionSet) {
             Optional<Permission> permissionOptional = this.permissionRepository.findByName(permission.getName());
             if (permissionOptional.isPresent()) {

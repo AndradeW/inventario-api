@@ -6,6 +6,7 @@ import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.model.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.util.HashSet;
 import java.util.List;
@@ -14,8 +15,14 @@ import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name", qualifiedByName = "toUpperCaseName")
     @Mapping(target = "permissions", expression = "java(mapPermissionDTOSetToPermissionSet(roleDTO.permissions()))")
     Role toRole(RoleDTO roleDTO);
+
+    @Named("toUpperCaseName")
+    default String toUpperCaseName(String name) {
+        return name.toUpperCase();
+    }
 
     default Set<Permission> mapPermissionDTOSetToPermissionSet(Set<PermissionDTO> permissionList) {
         Set<Permission> permissionSet = new HashSet<>();
@@ -35,6 +42,7 @@ public interface RoleMapper {
 
     @Mapping(target = "permissions", expression = "java(mapPermissionToPermissionDTOSet(createdRole.getPermissions()))")
     RoleDTO toRoleDTO(Role createdRole);
+
     List<RoleDTO> toRoleDTOSet(List<Role> createdRoleSet);
 
 

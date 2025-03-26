@@ -2,6 +2,8 @@ package com.inventario.inventario_api.service;
 
 import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.repository.PermissionRepository;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +13,21 @@ import java.util.Optional;
 @Service
 public class PermissionService {
 
+    private final PermissionRepository permissionRepository;
+
     @Autowired
-    private PermissionRepository permissionRepository;
+    public PermissionService(PermissionRepository permissionRepository) {
+        this.permissionRepository = permissionRepository;
+    }
 
     public Permission createPermission(Permission permission) {
+
+        Optional<Permission> permissionOptional = this.permissionRepository.findByName(permission.getName());
+
+        if (permissionOptional.isPresent()) {
+            throw new EntityExistsException("Permission already exists");
+        }
+
         return this.permissionRepository.save(permission);
     }
 
@@ -31,16 +44,27 @@ public class PermissionService {
     }
 
     public Permission updatePermission(Long id, Permission updatedPermission) {
+
         Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
-        if (permissionOptional.isPresent()) {
-            Permission permission = permissionOptional.get();
-            permission.setName(updatedPermission.getName());
-            return this.permissionRepository.save(permission);
+
+        if (permissionOptional.isEmpty()) {
+            throw new EntityNotFoundException("Permission with id " + id + "not found");
+
         }
-        return null;
+
+        Permission permission = permissionOptional.get();
+        permission.setName(updatedPermission.getName());
+
+        return this.permissionRepository.save(permission);
     }
 
     public void deletePermission(Long id) {
-        this.permissionRepository.deleteById(id);
+
+        Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
+        if (permissionOptional.isEmpty()) {
+            throw new EntityNotFoundException("Permission with id " + id + "not found");
+        }
+
+        this.permissionRepository.delete(permissionOptional.get());
     }
 }

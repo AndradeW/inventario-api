@@ -5,5 +5,5 @@ import lombok.Builder;
 import java.util.Set;
 
 @Builder
-public record RoleDTO(String name, String description, Set<PermissionDTO> permissions) {
+public record RoleDTO(Long id, String name, String description, Set<PermissionDTO> permissions) {
 }

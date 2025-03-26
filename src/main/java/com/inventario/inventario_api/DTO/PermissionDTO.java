@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
-public record PermissionDTO(@NotNull String name) {
+public record PermissionDTO(Long id, @NotNull String name) {
 }

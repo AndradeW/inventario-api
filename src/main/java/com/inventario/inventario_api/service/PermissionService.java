@@ -25,7 +25,7 @@ public class PermissionService {
         Optional<Permission> permissionOptional = this.permissionRepository.findByName(permission.getName());
 
         if (permissionOptional.isPresent()) {
-            throw new EntityExistsException("Permission already exists");
+            throw new EntityExistsException("Permission " + permission.getName() + " already exists");
         }
 
         return this.permissionRepository.save(permission);
@@ -43,13 +43,12 @@ public class PermissionService {
         return this.permissionRepository.findByName(name);
     }
 
-    public Permission updatePermission(Long id, Permission updatedPermission) {
+    public Permission updatePermission(String name, Permission updatedPermission) {
 
-        Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
+        Optional<Permission> permissionOptional = this.permissionRepository.findByName(name);
 
         if (permissionOptional.isEmpty()) {
-            throw new EntityNotFoundException("Permission with id " + id + "not found");
-
+            throw new EntityNotFoundException("Permission with name " + name + " not found");
         }
 
         Permission permission = permissionOptional.get();
@@ -58,11 +57,11 @@ public class PermissionService {
         return this.permissionRepository.save(permission);
     }
 
-    public void deletePermission(Long id) {
+    public void deletePermission(String name) {
 
-        Optional<Permission> permissionOptional = this.permissionRepository.findById(id);
+        Optional<Permission> permissionOptional = this.permissionRepository.findByName(name);
         if (permissionOptional.isEmpty()) {
-            throw new EntityNotFoundException("Permission with id " + id + "not found");
+            throw new EntityNotFoundException("Permission with name " + name + " not found");
         }
 
         this.permissionRepository.delete(permissionOptional.get());

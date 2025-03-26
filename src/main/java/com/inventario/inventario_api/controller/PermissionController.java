@@ -5,6 +5,7 @@ import com.inventario.inventario_api.DTO.PermissionDTO;
 import com.inventario.inventario_api.model.Permission;
 import com.inventario.inventario_api.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,9 +29,9 @@ public class PermissionController {
     @PostMapping
     public ResponseEntity<PermissionDTO> createPermission(@RequestBody PermissionDTO permissionDTO) {
         Permission permission = this.permissionMapper.toPermission(permissionDTO);
-        Permission createPermission = this.permissionService.createPermission(permission);
-        PermissionDTO creatPermissionDTO = this.permissionMapper.toPermissionDTO(createPermission);
-        return ResponseEntity.ok(creatPermissionDTO);
+        Permission createdPermission = this.permissionService.createPermission(permission);
+        PermissionDTO createdPermissionDTO = this.permissionMapper.toPermissionDTO(createdPermission);
+        return new ResponseEntity<>(createdPermissionDTO, HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -57,19 +58,19 @@ public class PermissionController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PermissionDTO> updatePermission(@PathVariable Long id, @RequestBody PermissionDTO permissionDTO) {
+    @PutMapping("/name/{name}")
+    public ResponseEntity<PermissionDTO> updatePermission(@PathVariable String name, @RequestBody PermissionDTO permissionDTO) {
 
         Permission permission = this.permissionMapper.toPermission(permissionDTO);
-        Permission updatedPermission = this.permissionService.updatePermission(id, permission);
+        Permission updatedPermission = this.permissionService.updatePermission(name, permission);
         PermissionDTO updatedPermissionDTO = this.permissionMapper.toPermissionDTO(updatedPermission);
 
         return ResponseEntity.ok(updatedPermissionDTO);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePermission(@PathVariable Long id) {
-        this.permissionService.deletePermission(id);
+    @DeleteMapping("/name/{name}")
+    public ResponseEntity<Void> deletePermission(@PathVariable String name) {
+        this.permissionService.deletePermission(name);
         return ResponseEntity.noContent().build();
     }
 }

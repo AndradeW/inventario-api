@@ -104,7 +104,7 @@ public class UserService implements UserDetailsService {
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
 
         user.getRoles()
-                .forEach(role -> simpleGrantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role)));
+                .forEach(role -> simpleGrantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName())));
 
         user.getRoles().stream()
                 .flatMap(role -> role.getPermissions().stream())

@@ -20,7 +20,7 @@ public interface UserMapper {
     @Mapping(target = "accountNoExpired", constant = "true")
     @Mapping(target = "accountNoLocked", constant = "true")
     @Mapping(target = "credentialsNoExpired", constant = "true")
-    @Mapping(target = "roles", expression = "java(mapRolesToSet(userInputDTO.getRole()))")
+    @Mapping(target = "roles", expression = "java(mapRolesToSet(userInputDTO.role()))")
     @Mapping(target = "password", qualifiedByName = "encryptPassword")
     User userInputDTOToUser(UserInputDTO userInputDTO);
 

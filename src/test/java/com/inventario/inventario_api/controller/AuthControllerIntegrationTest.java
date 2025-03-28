@@ -73,12 +73,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         UserDTO responseBody = response.getBody();
         assertNotNull(responseBody);
-        assertEquals(newUser.getName(), responseBody.name());
-        assertEquals(newUser.getUsername(), responseBody.username());
-        assertEquals(newUser.getEmail(), responseBody.email());
+        assertEquals(newUser.name(), responseBody.name());
+        assertEquals(newUser.username(), responseBody.username());
+        assertEquals(newUser.email(), responseBody.email());
         assertEquals(ROLE_CUSTOMER, responseBody.role()[0]);
-        assertEquals(newUser.getAddress(), responseBody.address());
-        assertEquals(newUser.getPhone(), responseBody.phone());
+        assertEquals(newUser.address(), responseBody.address());
+        assertEquals(newUser.phone(), responseBody.phone());
     }
 
     @Test
@@ -93,12 +93,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         UserDTO responseBody = response.getBody();
         assertNotNull(responseBody);
-        assertEquals(newUser.getName(), responseBody.name());
-        assertEquals(newUser.getUsername(), responseBody.username());
-        assertEquals(newUser.getEmail(), responseBody.email());
-        assertArrayEquals(newUser.getRole(), responseBody.role());
-        assertEquals(newUser.getAddress(), responseBody.address());
-        assertEquals(newUser.getPhone(), responseBody.phone());
+        assertEquals(newUser.name(), responseBody.name());
+        assertEquals(newUser.username(), responseBody.username());
+        assertEquals(newUser.email(), responseBody.email());
+        assertArrayEquals(newUser.role(), responseBody.role());
+        assertEquals(newUser.address(), responseBody.address());
+        assertEquals(newUser.phone(), responseBody.phone());
     }
 
     @Test
@@ -113,12 +113,12 @@ public class AuthControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         UserDTO responseBody = response.getBody();
         assertNotNull(responseBody);
-        assertEquals(newUser.getName(), responseBody.name());
-        assertEquals(newUser.getUsername(), responseBody.username());
-        assertEquals(newUser.getEmail(), responseBody.email());
-        assertArrayEquals(newUser.getRole(), responseBody.role());
-        assertEquals(newUser.getAddress(), responseBody.address());
-        assertEquals(newUser.getPhone(), responseBody.phone());
+        assertEquals(newUser.name(), responseBody.name());
+        assertEquals(newUser.username(), responseBody.username());
+        assertEquals(newUser.email(), responseBody.email());
+        assertArrayEquals(newUser.role(), responseBody.role());
+        assertEquals(newUser.address(), responseBody.address());
+        assertEquals(newUser.phone(), responseBody.phone());
     }
 
     @Test
@@ -256,7 +256,7 @@ public class AuthControllerIntegrationTest {
         assertNotNull(apiError);
         assertEquals("Validations error", apiError.getMessage());
         assertTrue(apiError.getDetails().containsKey("username"));
-        assertEquals("El nombre de usuario debe tener entre 3 y 20 caracteres", apiError.getDetails().get("username"));
+        assertEquals("El nombre de usuario solo puede contener letras, números, guiones y puntos", apiError.getDetails().get("username"));
         assertTrue(apiError.getDetails().containsKey("email"));
         assertEquals("El correo electrónico no puede estar vacío", apiError.getDetails().get("email"));
         assertTrue(apiError.getDetails().containsKey("password"));

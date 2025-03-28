@@ -47,7 +47,7 @@ public class SecurityConfig {
                             http.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
                             http.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
 
-                            http.anyRequest().authenticated();
+                            http.anyRequest().hasRole("ADMIN");
                         }
                 )
                 .addFilterBefore(this.jwtUtilFiler(), BasicAuthenticationFilter.class)

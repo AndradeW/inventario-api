@@ -1,22 +1,16 @@
 package com.inventario.inventario_api.DTO;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
 
-@Setter
-@Getter
-public class UserDTO {
+@Builder
+public record UserDTO(Long id,
+                      String name,
+                      String username,
+                      String email,
+                      String[] role,
 
-    private Long id;
-
-    private String name;
-    private String username;
-    private String email;
-    private String[] role;
-
-    private String address;
-    private String phone;
-
+                      String address,
+                      String phone) {
 }
 
 

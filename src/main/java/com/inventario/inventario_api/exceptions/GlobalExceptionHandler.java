@@ -1,5 +1,7 @@
 package com.inventario.inventario_api.exceptions;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -53,4 +55,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.NOT_FOUND, "El campo no fue encontrado en la DB", Map.of("Error", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEntityExistsException(EntityExistsException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST, "El campo ya existe en la DB", Map.of("Error", ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }
